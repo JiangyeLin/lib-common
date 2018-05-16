@@ -1,0 +1,44 @@
+{
+  "registRulesTitle": "泰然金融用户协议",
+  //注册协议
+  "registRulesUrl": "https://passport.trc.com/appprotocol/taihe_service.html",
+  "authenRulesTitle": "出借人服务协议",
+  //实名认证协议
+  "authenRulesUrl": "https://jrcg.trc.com/trc_app/protocol/account",
+  "authenRulesTips": "实名认证的温馨提示内容",
+  //带换行格式
+
+  "sbRiskNoticeRulesTitle": "《出借人风险提示》",
+  //散标的出借人风险提示
+  "sbRiskNoticeRulesUrl": "",
+  //若有此值非空，则app跳转该链接，若为空，app按照原有方式跳原生弹窗
+
+  "sbInvestRulesTitle": "《借款协议范本》",
+  //散标的借款协议范本
+  "sbInvestRulesUrl": "https://jrcg.trc.com/trc_app/protocol/model/loan",
+  "sbRiskDesRulesTitle": "《出借风险说明和禁止性行为》",
+  //散标的出借风险说明和禁止性行为
+  "sbRiskDesRulesUrl": "https://jrcg.trc.com/trc_app/protocol/risk-tips",
+  "lzRiskNoticeRulesTitle": "《出借人风险提示》",
+  //转让的出借人风险提示
+  "lzRiskNoticeRulesUrl": "",
+  //若有此值非空，则app跳转该链接，若为空，app按照原有方式跳原生弹窗
+
+  "lzInvestRulesTitle": "《借款协议范本》",
+  //转让的借款协议范本
+  "lzInvestRulesUrl": "https://jrcg.trc.com/trc_app/protocol/model/transfer",
+  "lzRiskDesRulesTitle": "《出借风险说明和禁止性行为》",
+  //转让的出借风险说明和禁止性行为
+  "lzRiskDesRulesUrl": "https://jrcg.trc.com/trc_app/protocol/risk-tips",
+  "planRiskNoticeRulesTitle": "《出借人风险提示》",
+  //计划的出借风险说明和禁止性行为
+  "planRiskNoticeRulesUrl": "",
+  //若有此值非空，则app跳转该链接，若为空，app按照原有方式跳原生弹窗
+
+  "planRiskDesRulesTitle": "《出借风险说明和禁止性行为》",
+  //计划的出借风险说明和禁止性行为
+  "planRiskDesRulesUrl": "https://jrcg.trc.com/trc_app/protocol/risk-tips",
+  "planOauthRulesTitle": "《泰然金融预约计划授权协议》",
+  //计划的泰然金融预约计划授权协议
+  "planOauthDesRulesUrl": "https://jrcg.trc.com/trc_app/protocol/model/plan"
+}

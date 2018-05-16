@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="lib_common_loading_color_1">#3BB7E9</color>
+    <color name="lib_common_loading_color_2">#FE8C1D</color>
+    <color name="lib_common_loading_color_3">#37BC9B</color>
+    <color name="lib_common_loading_color_4">#FD6018</color>
+    <color name="lib_common_loading_color_5">#000000</color>
+
+    <color name="lib_common_h5_progress_bar">#3BB7E9</color>
+    <color name="lib_common_h5_title">#525252</color>
+    <color name="lib_common_h5_toolbar_background_color">#f8f8f8</color>
+</resources>
