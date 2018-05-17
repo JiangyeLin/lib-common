@@ -10,6 +10,8 @@ public class WebViewScheme {
     @Deprecated
     public static final String ACTION_CLEAR_HISTORY_OLD = "clearHistory";//清除网页堆栈记录
     public static final String ACTION_CLEAR_HISTORY = "clear_history";//清除网页堆栈记录
+    public static final String ACTION_CLEAR_COOKIE = "clear_cookie";//清除Cookie
+    public static final String ACTION_CLEAR_CACHE = "clear_cache";//清除缓存
 
     @Deprecated
     public static final String ACTION_CONFIG_OPTION_MENU_OLD = "configOptionMenu";//配置toolbar右上角里面的菜单

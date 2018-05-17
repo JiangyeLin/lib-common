@@ -33,6 +33,7 @@ import com.tencent.smtt.sdk.WebView;
 import com.tencent.smtt.sdk.WebViewClient;
 import com.trc.android.common.exception.ExceptionManager;
 import com.trc.android.common.util.ContactSelectUtil;
+import com.trc.android.common.util.CookieUtil;
 import com.trc.android.common.util.DensityUtil;
 import com.trc.android.common.util.ImgUtil;
 import com.trc.android.common.util.NullUtil;
@@ -434,6 +435,12 @@ public class WebViewHelper {
                             webView.loadUrl("javascript:onSelectContact(" + name + "," + phone + ")");
                         }
                     });
+                    return true;
+                case WebViewScheme.ACTION_CLEAR_CACHE:
+                    webView.clearCache(true);
+                    return true;
+                case WebViewScheme.ACTION_CLEAR_COOKIE:
+                    CookieUtil.clearCookie();
                     return true;
                 default:
                     return false;
