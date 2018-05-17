@@ -10,8 +10,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
@@ -34,6 +32,7 @@ import com.tencent.smtt.sdk.WebChromeClient;
 import com.tencent.smtt.sdk.WebView;
 import com.tencent.smtt.sdk.WebViewClient;
 import com.trc.android.common.exception.ExceptionManager;
+import com.trc.android.common.util.ContactSelectUtil;
 import com.trc.android.common.util.DensityUtil;
 import com.trc.android.common.util.ImgUtil;
 import com.trc.android.common.util.NullUtil;
@@ -105,7 +104,7 @@ public class WebViewHelper {
         swipeRefreshLayout.setOnChildScrollUpCallback((parent, child) -> webView.getWebScrollY() > 0);
         swipeRefreshLayout.setOnRefreshListener(() -> {
             if (!webViewClientInterface.onRefresh()) {
-                webView.reload();
+                reload();
                 swipeRefreshLayout.postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -130,8 +129,7 @@ public class WebViewHelper {
             reloadBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    webView.reload();
-                    connectErrorCoverView.setVisibility(View.GONE);
+                    reload();
                 }
             });
         }
@@ -154,6 +152,13 @@ public class WebViewHelper {
         rootView.findViewById(R.id.toolbarLayout).setVisibility(visibility);
         rootView.findViewById(R.id.divider).setVisibility(visibility);
         return this;
+    }
+
+    private void reload() {
+        if (null != errorCoverView) {
+            errorCoverView.setVisibility(View.GONE);
+        }
+        webView.reload();
     }
 
     private void loadUrl(String url) {
@@ -385,9 +390,11 @@ public class WebViewHelper {
                     }
                     return true;
                 case WebViewScheme.ACTION_GO_BACK_TO_H5_HOME://回到H5应用的首页
+                case WebViewScheme.ACTION_GO_BACK_TO_H5_HOME_OLD://回到H5应用的首页
                     loadUrl(originUrl);
                     needClearHistory = true;
                     return true;
+                case WebViewScheme.ACTION_GO_BACK_OLD://返回上一个加载的页面
                 case WebViewScheme.ACTION_GO_BACK://返回上一个加载的页面
                     if (webView.canGoBack()) {
                         webView.goBack();
@@ -395,29 +402,39 @@ public class WebViewHelper {
                         activity.finish();
                     }
                     return true;
-                case WebViewScheme.ACTION_EXIT_H5://推出所有的H5页面,关闭Activity
+                case WebViewScheme.ACTION_CLOSE_WINDOW_OLD://推出所有的H5页面,关闭Activity
+                case WebViewScheme.ACTION_CLOSE_WINDOW://推出所有的H5页面,关闭Activity
                     activity.finish();
                     return true;
                 case WebViewScheme.ACTION_CLEAR_HISTORY://清除所有历史记录
+                case WebViewScheme.ACTION_CLEAR_HISTORY_OLD://清除所有历史记录
                     needClearHistory = true;
                     return true;
                 case WebViewScheme.ACTION_CONFIG_OPTION_MENU://配置更多菜单
+                case WebViewScheme.ACTION_CONFIG_OPTION_MENU_OLD://配置更多菜单
                     showOptionMenu(uri);
                     return true;
                 case WebViewScheme.ACTION_CONFIG_TOOLBAR_BTNS://配置Toolbar的按钮（文字按钮&图片按钮&图文按钮）
+                case WebViewScheme.ACTION_CONFIG_TOOLBAR_BTNS_OLD://配置Toolbar的按钮（文字按钮&图片按钮&图文按钮）
                     configToolbar(uri);
                     updateToolbarBtns();
                     return true;
                 case WebViewScheme.ACTION_RELOAD://重新加载
-                    webView.reload();
+                    reload();
                     return true;
                 case WebViewScheme.ACTION_CONFIG_BACK_BTN://H5配置点击返回按钮的事件，一次配置有效一次，一个页面只能配置一次
                     String backAction = getBase64EncodedParameter(uri, "action");
                     backActionMap.put(webView.getUrl(), backAction);
                     return true;
 
-                case WebViewScheme.ACTION_GET_PHONE_NUM:
-
+                case WebViewScheme.ACTION_SELECT_CONTACT_OLD:
+                case WebViewScheme.ACTION_SELECT_CONTACT:
+                    ContactSelectUtil.select(activity, new ContactSelectUtil.SelectCallback() {
+                        @Override
+                        public void onSelectSuccess(String name, String phone) {
+                            webView.loadUrl("javascript:onSelectContact(" + name + "," + phone + ")");
+                        }
+                    });
                 default:
                     return false;
             }
