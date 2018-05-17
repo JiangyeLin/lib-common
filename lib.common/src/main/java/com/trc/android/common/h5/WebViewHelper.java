@@ -426,7 +426,6 @@ public class WebViewHelper {
                     String backAction = getBase64EncodedParameter(uri, "action");
                     backActionMap.put(webView.getUrl(), backAction);
                     return true;
-
                 case WebViewScheme.ACTION_SELECT_CONTACT_OLD:
                 case WebViewScheme.ACTION_SELECT_CONTACT:
                     ContactSelectUtil.select(activity, new ContactSelectUtil.SelectCallback() {
@@ -435,6 +434,7 @@ public class WebViewHelper {
                             webView.loadUrl("javascript:onSelectContact(" + name + "," + phone + ")");
                         }
                     });
+                    return true;
                 default:
                     return false;
             }

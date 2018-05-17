@@ -12,13 +12,13 @@ public class CookieUtil {
 
         com.tencent.smtt.sdk.CookieManager x5CookieManager = com.tencent.smtt.sdk.CookieManager.getInstance();
         String x5cookie = x5CookieManager.getCookie(domain);
-        if (null != x5cookie && !x5cookie.contains(keyValue)) {
+        if (null == x5cookie || !x5cookie.contains(keyValue)) {
             x5CookieManager.setCookie(domain, getCookie(domain, key, value));
         }
 
         android.webkit.CookieManager androidCookieManager1 = android.webkit.CookieManager.getInstance();
         String androidCookie = androidCookieManager1.getCookie(domain);
-        if (null != androidCookie && !androidCookie.contains(keyValue)) {
+        if (null == androidCookie || !androidCookie.contains(keyValue)) {
             androidCookieManager1.setCookie(domain, getCookie(domain, key, value));
         }
     }
