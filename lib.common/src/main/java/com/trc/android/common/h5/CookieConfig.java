@@ -18,12 +18,23 @@ public class CookieConfig {
 
     public static void addUniversalCookie(String key, String value) {
         KeyValue keyValue = new KeyValue(key, value);
-        if (!list.contains(keyValue))
-            list.add(keyValue);
+        if (list.contains(keyValue)) list.remove(keyValue);
+        list.add(keyValue);
     }
 
     public static List<KeyValue> getUniversalCookie() {
         return outList;
+    }
+
+    public static void remove(String key) {
+        KeyValue k = null;
+        for (KeyValue keyValue : list) {
+            if (keyValue.key.equals(key)) {
+                k = keyValue;
+                break;
+            }
+        }
+        list.remove(k);
     }
 
     static class KeyValue implements Serializable {

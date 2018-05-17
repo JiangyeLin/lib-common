@@ -2,7 +2,6 @@ package com.trc.android.common.util;
 
 
 import android.os.Build;
-import android.webkit.ValueCallback;
 
 import com.tencent.smtt.sdk.CookieManager;
 
@@ -24,7 +23,7 @@ public class CookieUtil {
     }
 
     public static void clearCookie() {
-        CookieManager.getInstance().removeAllCookie();
+        com.tencent.smtt.sdk.CookieManager.getInstance().removeAllCookie();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             android.webkit.CookieManager.getInstance().removeAllCookies(null);
