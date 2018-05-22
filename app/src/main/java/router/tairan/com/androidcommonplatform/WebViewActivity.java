@@ -21,8 +21,8 @@ public class WebViewActivity extends AppCompatActivity {
         }
 
         @Override
-        public boolean shouldOverrideUrlLoading(String url) {//对特定URL感兴趣，可以在此优先处理
-            return super.shouldOverrideUrlLoading(url);
+        public boolean onLoadUrl(String url) {//对特定URL感兴趣，可以在此优先处理
+            return super.onLoadUrl(url);
         }
 
         public void closeWindow() {

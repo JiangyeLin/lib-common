@@ -1,8 +1,6 @@
 package com.trc.android.common.h5;
 
 import android.annotation.TargetApi;
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -328,7 +326,7 @@ public class WebViewHelper {
         try {
             Uri uri = Uri.parse(url);
             //先交给WebViewHelper的webViewClientInterface处理
-            if (handleByWebViewClient(url)) {
+            if (webViewClientInterface.onLoadUrl(url)) {
                 return true;
             } else if (handleWebViewScheme(uri)) {
                 //交给内置的处理jsbridge://的代码处理
@@ -337,7 +335,7 @@ public class WebViewHelper {
                 //处理Http、Https链接
                 return false;
             } else {//调用系统处理URI
-                handleBySystemApp(uri);
+                webViewClientInterface.onNoResolver(url);
             }
         } catch (Exception e) {
             ExceptionManager.handle(e);
@@ -345,18 +343,6 @@ public class WebViewHelper {
         return true;
     }
 
-    private boolean handleByWebViewClient(String url) {
-        return webViewClientInterface.shouldOverrideUrlLoading(url);
-    }
-
-    private void handleBySystemApp(Uri uri) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(uri);
-        Context context = webView.getContext();
-        if (intent.resolveActivity(context.getPackageManager()) != null) {
-            context.startActivity(intent);
-        }
-    }
 
     private boolean handleHttpLink(String url) {
         if (url.toLowerCase().startsWith("http")) {
@@ -606,7 +592,7 @@ public class WebViewHelper {
 
     public abstract static class WebViewClientInterface {
 
-        public boolean shouldOverrideUrlLoading(final String url) {
+        public boolean onLoadUrl(final String url) {
             return false;
         }
 
@@ -617,6 +603,10 @@ public class WebViewHelper {
         }
 
         public void onProgressChanged(int newProgress) {
+
+        }
+
+        public void onNoResolver(String url) {
 
         }
 
