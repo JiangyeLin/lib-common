@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.Toast;
 
 import com.tencent.smtt.sdk.DownloadListener;
@@ -41,20 +42,21 @@ public class TrWebView extends WebView {
         initWebView();
     }
 
-    private boolean isAfterPause;
+    private boolean needLoadOnResume;
+
 
     @Override
-    public void onResume() {
-        super.onResume();
-        if (isAfterPause)
-            loadUrl("javascript:onResume()");
-    }
+    protected void onWindowVisibilityChanged(int visibility) {
+        super.onWindowVisibilityChanged(visibility);
+        if (visibility == View.VISIBLE) {
+            if (needLoadOnResume) {
+                loadUrl("javascript:onResume()");
+            }
+        } else if (visibility == View.GONE) {
+            needLoadOnResume = true;
+            loadUrl("javascript:onPause()");
+        }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        isAfterPause = true;
-        loadUrl("javascript:onPause()");
     }
 
     @Override
