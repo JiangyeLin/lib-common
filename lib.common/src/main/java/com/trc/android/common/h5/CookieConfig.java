@@ -17,8 +17,8 @@ public class CookieConfig {
     private static List<KeyValue> outList = Collections.unmodifiableList(list);
 
     public static void addUniversalCookie(String key, String value) {
+        remove(key);
         KeyValue keyValue = new KeyValue(key, value);
-        if (list.contains(keyValue)) list.remove(keyValue);
         list.add(keyValue);
     }
 
