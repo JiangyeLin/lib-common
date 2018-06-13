@@ -78,7 +78,7 @@ public class FileUtil {
             public void run() {
                 synchronized (targetFile.getPath().intern()) {
                     if (targetFile.exists()) {
-                        downloadListener.onSuccess();
+                        onSuccess();
                         return;
                     }
                     FileOutputStream fos = null;

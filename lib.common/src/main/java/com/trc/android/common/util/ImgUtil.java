@@ -701,7 +701,7 @@ public class ImgUtil {
                 try {
                     Bitmap bitmap = getBitmap(targetFile.getPath());
                     imageView.setImageBitmap(bitmap);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
