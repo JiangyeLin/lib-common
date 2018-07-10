@@ -151,9 +151,28 @@ public class ImgUtil {
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(res, options);
         double dis = Math.sqrt(options.outWidth * options.outHeight / maxAreaPxSquare);
-        options.inSampleSize = (int) Math.ceil(dis);
+        //理论上inSampleSize内部会自动取2的n次方，然而实际上类似传入3，7这样的数也会生效，但是生成的bitmap会失真
+        //options.inSampleSize= (int) Math.ceil(dis);
+        options.inSampleSize = calSampleSize((int) Math.ceil(dis));
         options.inJustDecodeBounds = false;
         return options;
+    }
+
+    /**
+     * 手动计算inSampleSize缩放倍数
+     *
+     * @param dis 边长要缩小的倍数
+     * @return 与缩放倍数最接近的数（该数必须为2的n次方，且向上取整）
+     */
+    private static int calSampleSize(int dis) {
+        if (dis <= 1) {
+            return 1;//不需要缩放
+        }
+        int sum = 1;
+        while (sum < dis) {
+            sum = sum * 2;
+        }
+        return sum;
     }
 
     /**
@@ -689,12 +708,12 @@ public class ImgUtil {
         return false;
     }
 
-    public static void load(String url, ImageView imageView){
+    public static void load(String url, ImageView imageView) {
         Context context = imageView.getContext();
         File dir = context.getFilesDir();
         File imgDir = new File(dir, "img");
-        if(!imgDir.exists()) imgDir.mkdirs();
-        File targetFile = new File(imgDir, url.hashCode()+".pic");
+        if (!imgDir.exists()) imgDir.mkdirs();
+        File targetFile = new File(imgDir, url.hashCode() + ".pic");
         FileUtil.download(url, targetFile, new FileUtil.DownloadListener() {
             @Override
             public void onSuccess() {
