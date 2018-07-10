@@ -16,7 +16,6 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import com.trc.android.common.exception.ExceptionManager;
 import com.trc.common.R;
 
@@ -63,19 +62,22 @@ public class PicturesSelectUtil extends AppCompatActivity implements View.OnClic
     public static void select(FragmentActivity activity, boolean isCrop, int picSize, OnPicturesCallback callback) {
         LifeCircleCallbackUtil.inject(activity, new LifeCircleCallbackUtil.Callback() {
             @Override
-            void onLoad(Fragment fragment) {
+            void onCreate(Fragment fragment) {
                 Intent intent = new Intent(activity, PicturesSelectUtil.class);
                 intent.putExtra(KEY_IS_CROP, isCrop);
                 intent.putExtra(KEY_PIC_SIZE, picSize);
-                activity.startActivity(intent);
-                activity.overridePendingTransition(0, 0);
+
+                //应该由LifeCircleCallbackUtil拉起activity,绑定生命周期
+                fragment.startActivityForResult(intent, 100);
+                //activity.startActivity(intent);
+                //activity.overridePendingTransition(0, 0);
             }
 
             @Override
             void onActivityResult(Fragment fragment, int resultCode, Intent data) {
-                if(resultCode==RESULT_OK){
+                if (resultCode == RESULT_OK) {
                     callback.onSelect((File) data.getSerializableExtra(KEY_FILE));
-                }else{
+                } else {
                     callback.onCancel();
                 }
             }
@@ -110,7 +112,7 @@ public class PicturesSelectUtil extends AppCompatActivity implements View.OnClic
             photoIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraOutPutUri);
             photoIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             PermissionUtil.requestPermission(this, Manifest.permission.CAMERA,
-                    "请在设置-应用-泰然城-权限中开启相机权限，以正常使用拍照，二维码扫描等功能", new PermissionUtil.OnPermissionCallback() {
+                    "请在设置中授予权限，以正常使用相关功能", new PermissionUtil.OnPermissionCallback() {
                         @Override
                         public void onGranted() {
                             startActivityForResult(photoIntent, PicturesSelectUtil.REQUEST_CAMERA);
@@ -137,7 +139,7 @@ public class PicturesSelectUtil extends AppCompatActivity implements View.OnClic
             albumIntent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
             //判断是否有读写图像权限
             PermissionUtil.requestPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    "请在设置-应用-泰然城-权限中开启存储空间，以正常使用选择相册功能", new PermissionUtil.OnPermissionCallback() {
+                    "请在设置中授予权限，以使用相关功能", new PermissionUtil.OnPermissionCallback() {
                         @Override
                         public void onGranted() {
                             startActivityForResult(albumIntent, PicturesSelectUtil.REQUEST_ALBUM);
@@ -247,7 +249,8 @@ public class PicturesSelectUtil extends AppCompatActivity implements View.OnClic
             cropOutPutUri = Uri.fromFile(new File(getExternalCacheDir(), System.currentTimeMillis() + ".jpeg"));
             Intent intent = new Intent("com.android.camera.action.CROP", null)
                     .setDataAndType(uri, CROP_TYPE).putExtra("crop", true)
-                    .putExtra("scale", true).putExtra("aspectX", DEFAULT_ASPECT)
+                    .putExtra("scale", true)
+                    .putExtra("aspectX", DEFAULT_ASPECT)
                     .putExtra("aspectY", DEFAULT_ASPECT)
                     .putExtra("outputX", mPicSize)
                     .putExtra("outputY", mPicSize)

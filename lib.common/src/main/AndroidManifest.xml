@@ -6,4 +6,9 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+    <application>
+        <activity
+            android:name="com.trc.android.common.util.PicturesSelectUtil" />
+        <activity android:name="com.trc.android.common.util.PermissionUtil" />
+    </application>
 </manifest>
