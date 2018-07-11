@@ -8,7 +8,8 @@
 
     <application>
         <activity
-            android:name="com.trc.android.common.util.PicturesSelectUtil" />
+            android:name="com.trc.android.common.util.PicturesSelectUtil"
+            android:theme="@style/LibCommonTransparent" />
         <activity android:name="com.trc.android.common.util.PermissionUtil" />
     </application>
 </manifest>
