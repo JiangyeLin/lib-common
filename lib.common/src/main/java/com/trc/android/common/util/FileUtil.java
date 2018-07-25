@@ -25,7 +25,7 @@ import java.util.zip.ZipFile;
  * @author HanTuo on 2017/2/8.
  */
 
-public class FileUtil {
+public class FileUtil extends FileProvider{
     public static File getShareFile(String fileName) {
         return new File(getShareFileDir(), fileName);
     }

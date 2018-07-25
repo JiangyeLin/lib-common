@@ -2,6 +2,7 @@ package com.trc.android.common.util;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -76,25 +77,26 @@ public class LifeCircleCallbackUtil {
                 callback.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
             }
         }
-
     }
 
 
     public static abstract class Callback {
+        Fragment hostFragment;
+        @CallSuper
         void onCreate(Fragment fragment) {
-
+            hostFragment = fragment;
         }
-
         void onResume(Fragment fragment) {
         }
-
         void onPause(Fragment fragment) {
         }
-
         void onActivityResult(Fragment fragment, int resultCode, Intent data) {
         }
-
         void onRequestPermissionsResult(Fragment fragment, int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        }
+
+        public void removeCallback(){
+            hostFragment.getFragmentManager().beginTransaction().remove(hostFragment).commit();
         }
 
     }

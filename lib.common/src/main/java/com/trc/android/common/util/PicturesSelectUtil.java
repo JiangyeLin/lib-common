@@ -63,14 +63,14 @@ public class PicturesSelectUtil extends AppCompatActivity implements View.OnClic
         LifeCircleCallbackUtil.inject(activity, new LifeCircleCallbackUtil.Callback() {
             @Override
             void onCreate(Fragment fragment) {
+                super.onCreate(fragment);
                 Intent intent = new Intent(activity, PicturesSelectUtil.class);
                 intent.putExtra(KEY_IS_CROP, isCrop);
                 intent.putExtra(KEY_PIC_SIZE, picSize);
 
                 //应该由LifeCircleCallbackUtil拉起activity,绑定生命周期
                 fragment.startActivityForResult(intent, 100);
-                //activity.startActivity(intent);
-                //activity.overridePendingTransition(0, 0);
+                activity.overridePendingTransition(0, 0);
             }
 
             @Override
@@ -80,6 +80,7 @@ public class PicturesSelectUtil extends AppCompatActivity implements View.OnClic
                 } else {
                     callback.onCancel();
                 }
+                removeCallback();
             }
         });
     }

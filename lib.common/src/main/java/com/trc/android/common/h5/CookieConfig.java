@@ -1,6 +1,7 @@
 package com.trc.android.common.h5;
 
 import android.net.Uri;
+import android.text.TextUtils;
 
 import com.trc.android.common.util.CookieUtil;
 
@@ -42,6 +43,7 @@ public class CookieConfig {
         String value;
 
         public KeyValue(String key, String value) {
+            if (value == null) value = "";
             this.key = key;
             this.value = value;
         }

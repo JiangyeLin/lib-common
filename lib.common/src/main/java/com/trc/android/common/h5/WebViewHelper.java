@@ -334,6 +334,8 @@ public class WebViewHelper {
             } else if (handleHttpLink(url)) {
                 //处理Http、Https链接
                 return false;
+            } else if (url.startsWith("javascript:")) {
+                webView.loadUrl(url);
             } else {//调用系统处理URI
                 webViewClientInterface.onNoResolver(url);
             }
