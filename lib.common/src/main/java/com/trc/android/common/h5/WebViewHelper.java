@@ -436,7 +436,7 @@ public class WebViewHelper {
     }
 
 
-    private void configToolbar(Uri uri) {
+    public void configToolbar(Uri uri) {
         String json = getBase64EncodedParameter(uri, "params");
         List<WebActionItem> actionItemList = new Gson().fromJson(json, new TypeToken<List<WebActionItem>>() {
         }.getType());
@@ -474,7 +474,7 @@ public class WebViewHelper {
         }
     }
 
-    private void updateToolbarBtns() {
+    public void updateToolbarBtns() {
         if (null != llToolbarBtnContainer) {
             if (toolbarCache.containsKey(webView.getUrl())) {
                 llToolbarBtnContainer.setVisibility(View.VISIBLE);
@@ -515,12 +515,17 @@ public class WebViewHelper {
         }
 
         ImageView ivIcon = vItem.findViewById(R.id.ivIcon);
-        if (isEmpty(actionItem.icon)) {
-            ivIcon.setVisibility(View.GONE);
-        } else {
+        boolean showIvIcon = false;
+        if (null != actionItem.iconRes) {
+            showIvIcon = true;
+            ivIcon.setImageResource(actionItem.iconRes);
+        } else if (!isEmpty(actionItem.icon)) {
+            showIvIcon = true;
             ivIcon.setVisibility(View.VISIBLE);
             ImgUtil.load(actionItem.icon, ivIcon);
         }
+        ivIcon.setVisibility(showIvIcon ? View.VISIBLE : View.GONE);
+
         vItem.setOnClickListener(v -> {
             if (null != popupWindow && popupWindow.isShowing()) {
                 popupWindow.dismiss();

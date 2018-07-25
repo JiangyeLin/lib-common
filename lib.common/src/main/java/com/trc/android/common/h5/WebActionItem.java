@@ -19,4 +19,5 @@ public class WebActionItem {
     public String backgroundColor;
     @SerializedName("fontColor")
     public String fontColor;
+    public Integer iconRes;//本地图标配置
 }
