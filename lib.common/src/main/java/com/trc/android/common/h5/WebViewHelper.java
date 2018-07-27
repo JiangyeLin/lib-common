@@ -31,7 +31,6 @@ import com.tencent.smtt.sdk.WebView;
 import com.tencent.smtt.sdk.WebViewClient;
 import com.trc.android.common.exception.ExceptionManager;
 import com.trc.android.common.util.ContactSelectUtil;
-import com.trc.android.common.util.CookieUtil;
 import com.trc.android.common.util.DensityUtil;
 import com.trc.android.common.util.ImgUtil;
 import com.trc.android.common.util.NullUtil;
@@ -239,11 +238,7 @@ public class WebViewHelper {
                     PicturesSelectUtil.select(activity, false, new PicturesSelectUtil.OnPicturesCallback() {
                         @Override
                         public void onSelect(File file) {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                valueCallback.onReceiveValue(new Uri[]{Uri.fromFile(file)});
-                            } else {
-                                valueCallback.onReceiveValue(Uri.fromFile(file));
-                            }
+                            valueCallback.onReceiveValue(Uri.fromFile(file));
                         }
 
                         @Override

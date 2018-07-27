@@ -5,7 +5,13 @@ public class WebViewScheme {
     public static final String SCHEME = "jsbridge";
 
     @Deprecated
+    /**
+     * 关闭Page{@linkplain #ACTION_CLOSE_WINDOW}
+     */
     public static final String ACTION_CLOSE_WINDOW_OLD = "exitModule";//关闭Page
+    /**
+     * 关闭当前Activity（一般是WebViewActivity）
+     */
     public static final String ACTION_CLOSE_WINDOW = "close_window";//关闭Page
     @Deprecated
     public static final String ACTION_CLEAR_HISTORY_OLD = "clearHistory";//清除网页堆栈记录
@@ -18,10 +24,19 @@ public class WebViewScheme {
     public static final String ACTION_CONFIG_OPTION_MENU = "config_option_menu";//配置toolbar右上角里面的菜单
     @Deprecated
     public static final String ACTION_CONFIG_TOOLBAR_BTNS_OLD = "configToolbarBtns";//toolbar里面的按钮
+    /**
+     * 配置Toolbar里面的按钮
+     */
     public static final String ACTION_CONFIG_TOOLBAR_BTNS = "config_toolbar_btns";//toolbar里面的按钮
     @Deprecated
+    /**
+     * 返回上个页面{@link #ACTION_GO_BACK}
+     */
     public static final String ACTION_GO_BACK_OLD = "goBack";//返回上个页面
-    public static final String ACTION_GO_BACK = "go_back";//返回上个页面
+    /**
+     * 返回上个页面
+     */
+    public static final String ACTION_GO_BACK = "go_back";
     @Deprecated
     public static final String ACTION_SELECT_CONTACT_OLD = "getContactPhoneNum";//充值获取手机号码
     public static final String ACTION_SELECT_CONTACT = "select_contact";//充值获取手机号码
@@ -33,6 +48,14 @@ public class WebViewScheme {
     public static final String ACTION_GO_BACK_TO_H5_HOME_OLD = "goHome";
     public static final String ACTION_GO_BACK_TO_H5_HOME = "go_home";
 
-    public static final String ACTION_CONFIG_BACK_BTN = "config_back_btn"; //获取地区信息 ?action=BASE64ENCODED_JS_STR
-    public static final String ACTION_SET_TITLE = "set_title"; //H5通知去请求购物袋中商品的数量 jsbridge://set_title?title=购物车(1)"
+    /**
+     * 配置返回按钮，包括虚拟键、物理键的返回按钮
+     * 示例：jsbridge://config_back_btn?action=BASE64ENCODED_JS_STR
+     * 当用户点击时会执行一次action对应的URI
+     */
+    public static final String ACTION_CONFIG_BACK_BTN = "config_back_btn";
+    /**
+     * 设置当前WebView加载的URL展示的TOOLBAR里面的标题
+     */
+    public static final String ACTION_SET_TITLE = "set_title";
 }

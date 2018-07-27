@@ -1,17 +1,9 @@
 package com.trc.android.common.h5;
 
-import android.net.Uri;
-import android.text.TextUtils;
-
-import com.trc.android.common.util.CookieUtil;
-
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 public class CookieConfig {
     private static ArrayList<KeyValue> list = new ArrayList<>();

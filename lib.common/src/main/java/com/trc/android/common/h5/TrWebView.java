@@ -16,7 +16,6 @@ import com.tencent.smtt.sdk.DownloadListener;
 import com.tencent.smtt.sdk.WebSettings;
 import com.tencent.smtt.sdk.WebView;
 import com.trc.android.common.exception.ExceptionManager;
-import com.trc.android.common.util.CookieUtil;
 import com.trc.android.common.util.FileUtil;
 
 import java.io.File;
