@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
 public class ExampleUnitTest {
     @Test
     public void addition_isCorrect() {
-        Uri uri = Uri.parse("http://www.baidu.com/1/regist");
+        Uri uri = Uri.parse("http://www.baidu.com/1/register");
         System.out.println(uri.getPath());
     }
 }
