@@ -28,18 +28,10 @@ public class ObjCacheUtil {
     }
 
     public static void saveAsync(final Callback<Boolean> callback, @NonNull final File file, @NonNull final Object obj) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                final boolean success = save(file, obj);
-                if (null != callback)
-                    sHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            callback.onResult(success);
-                        }
-                    });
-            }
+        new Thread(() -> {
+            final boolean success = save(file, obj);
+            if (null != callback)
+                sHandler.post(() -> callback.onResult(success));
         }).start();
     }
 
@@ -47,18 +39,34 @@ public class ObjCacheUtil {
         saveAsync(callback, getFileFromObj(obj, name), obj);
     }
 
+    @Deprecated
+    /**
+     * obj的Class文件如果被混淆会导致缓存文件对应关系丢失
+     */
     public static void saveAsync(final Callback<Boolean> callback, @NonNull final Object obj) {
         saveAsync(callback, getFileFromObj(obj), obj);
     }
 
+    @Deprecated
+    /**
+     * obj的Class文件如果被混淆会导致缓存文件对应关系丢失
+     */
     public static void saveAsync(@NonNull File file, @NonNull Object obj) {
         saveAsync(null, file, obj);
     }
 
+    @Deprecated
+    /**
+     * obj的Class文件如果被混淆会导致缓存文件对应关系丢失
+     */
     public static void saveAsync(@NonNull String name, @NonNull Object obj) {
         saveAsync(null, name, obj);
     }
 
+    @Deprecated
+    /**
+     * obj的Class文件如果被混淆会导致缓存文件对应关系丢失
+     */
     public static void saveAsync(@NonNull Object obj) {
         saveAsync((Callback<Boolean>) null, obj);
     }
@@ -104,23 +112,20 @@ public class ObjCacheUtil {
     }
 
     public static <T> void getAsync(final Callback<T> callback, @NonNull final File file) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Type type = callback.getClass().getGenericInterfaces()[0];
-                    type = ((ParameterizedType) type).getActualTypeArguments()[0];
-                    final T t = get(file, type);
-                    sHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            callback.onResult(t);
-                        }
-                    });
-                } catch (Exception e) {
-                    callback.onResult(null);
-                    e.printStackTrace();
-                }
+        new Thread(() -> {
+            try {
+                Type type = callback.getClass().getGenericInterfaces()[0];
+                type = ((ParameterizedType) type).getActualTypeArguments()[0];
+                final T t = get(file, type);
+                sHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onResult(t);
+                    }
+                });
+            } catch (Exception e) {
+                callback.onResult(null);
+                e.printStackTrace();
             }
         }).start();
     }
@@ -189,9 +194,8 @@ public class ObjCacheUtil {
         return new File(DEFAULT_DIR, fileName);
     }
 
-    public static
     @Nullable
-    <T extends Object> T get(File file, Type clazz) {
+    public static <T extends Object> T get(File file, Type clazz) {
         try {
             if (file.exists()) {
                 FileInputStream fileInputStream = new FileInputStream(file);
@@ -208,15 +212,13 @@ public class ObjCacheUtil {
         return null;
     }
 
-    public static
     @Nullable
-    <T extends Object> T get(String name, Class<T> clazz) {
+    public static <T extends Object> T get(String name, Class<T> clazz) {
         return get(getFileFromObj(clazz, name), clazz);
     }
 
-    public static
     @Nullable
-    <T extends Object> T get(Class<T> clazz) {
+    public static <T extends Object> T get(Class<T> clazz) {
         return get(getFileFromObj(clazz), clazz);
     }
 

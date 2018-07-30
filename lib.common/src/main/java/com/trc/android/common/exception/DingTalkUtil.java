@@ -1,10 +1,10 @@
-package com.trc.android.common.util;
+package com.trc.android.common.exception;
 
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.trc.android.common.exception.ExceptionManager;
+import com.google.gson.annotations.SerializedName;
 
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -24,35 +24,30 @@ import java.util.List;
  */
 public class DingTalkUtil {
 
-    public static void sengMsg(final String urlPath, final String content, final List<String> phoneList, final boolean isAtAll) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                request(urlPath, content, phoneList, isAtAll);
-            }
-        }).start();
+    public static void sendMsg(final String urlPath, final String content, final List<String> phoneList, final boolean isAtAll) {
+        new Thread(() -> request(urlPath, content, phoneList, isAtAll)).start();
     }
 
     public static void request(String urlPath, String content, List<String> phoneList, boolean isAtAll) {
         try {
-            NailRobotModle nailRobotModle = new NailRobotModle();
-            nailRobotModle.msgtype = "text";
+            NailRobotModel nailRobotModel = new NailRobotModel();
+            nailRobotModel.msgtype = "text";
             if (!TextUtils.isEmpty(content)) {
-                NailRobotModle.TextBean textBean = new NailRobotModle.TextBean();
+                NailRobotModel.TextBean textBean = new NailRobotModel.TextBean();
                 textBean.content = content;
-                nailRobotModle.text = textBean;
+                nailRobotModel.text = textBean;
             } else {
                 return;
             }
             if (!isAtAll) {
                 if (phoneList != null) {
-                    NailRobotModle.AtBean atBean = new NailRobotModle.AtBean();
+                    NailRobotModel.AtBean atBean = new NailRobotModel.AtBean();
                     atBean.atMobiles = phoneList;
-                    nailRobotModle.at = atBean;
+                    nailRobotModel.at = atBean;
                 }
             }
-            nailRobotModle.isAtAll = isAtAll;
-            String json = new Gson().toJson(nailRobotModle);
+            nailRobotModel.isAtAll = isAtAll;
+            String json = new Gson().toJson(nailRobotModel);
             URL url = new URL(urlPath);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
@@ -84,23 +79,27 @@ public class DingTalkUtil {
         }
     }
 
-    public static class NailRobotModle {
+    public static class NailRobotModel {
         /**
          * msgtype : text
          * text : {"content":"我就是我, 是不一样的烟火"}
          * at : {"atMobiles":["156xxxx8827","189xxxx8325"],"isAtAll":false}
          */
 
+        @SerializedName("msgtype")
         public String msgtype;
+        @SerializedName("text")
         public TextBean text;
+        @SerializedName("at")
         public AtBean at;
+        @SerializedName("isAtAll")
         private boolean isAtAll;
 
         public static class TextBean {
             /**
              * content : 我就是我, 是不一样的烟火
              */
-
+            @SerializedName("content")
             public String content;
         }
 
@@ -110,7 +109,9 @@ public class DingTalkUtil {
              * isAtAll : false
              */
 
+            @SerializedName("isAtAll")
             public boolean isAtAll;
+            @SerializedName("atMobiles")
             public List<String> atMobiles;
         }
     }
