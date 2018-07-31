@@ -2,8 +2,6 @@ package com.trc.android.common.h5;
 
 import android.annotation.TargetApi;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.IdRes;
@@ -11,19 +9,12 @@ import android.support.annotation.LayoutRes;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.tencent.smtt.export.external.interfaces.SslErrorHandler;
 import com.tencent.smtt.sdk.ValueCallback;
 import com.tencent.smtt.sdk.WebChromeClient;
@@ -31,8 +22,6 @@ import com.tencent.smtt.sdk.WebView;
 import com.tencent.smtt.sdk.WebViewClient;
 import com.trc.android.common.exception.ExceptionManager;
 import com.trc.android.common.util.ContactSelectUtil;
-import com.trc.android.common.util.DensityUtil;
-import com.trc.android.common.util.ImgUtil;
 import com.trc.android.common.util.NullUtil;
 import com.trc.android.common.util.PicturesSelectUtil;
 import com.trc.common.R;
@@ -40,9 +29,7 @@ import com.trc.common.R;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 
-import static android.text.TextUtils.isEmpty;
 import static com.trc.android.common.h5.ParamsUtil.getBase64EncodedParameter;
 
 /**
@@ -54,20 +41,21 @@ public class WebViewHelper {
     private WebViewClientInterface webViewClientInterface;
 
     private View rootView;
-    private WebView webView;
-    private TextView tvTitle;
-    private LinearLayout llToolbarBtnContainer;
+    private TrWebView webView;
+
+
     private ProgressBar progressBar;
     private FrameLayout errorCoverViewContainer;
-
+    private ToolbarInterface toolbarInterface;
     private String originUrl;
     private String fixedTitle;
     private HashMap<String, String> backActionMap = new HashMap<>(1);
     private SwipeRefreshLayout swipeRefreshLayout;
     private boolean needClearHistory;
-    private HashMap<String, List<WebActionItem>> toolbarCache = new HashMap<>();//记录配置了Toolbar的H5页面
     private HashMap<String, String> configTitleMap = new HashMap<>(1);
+
     private View errorCoverView;
+    private ViewGroup toolbarContainer;
 
     public WebViewHelper(FragmentActivity fragmentActivity) {
         activity = fragmentActivity;
@@ -86,17 +74,11 @@ public class WebViewHelper {
         rootView = LayoutInflater.from(activity).inflate(R.layout.lib_common_fragment_webview, null);
         webView = rootView.findViewById(R.id.webView);
         swipeRefreshLayout = rootView.findViewById(R.id.swipeRefreshLayout);
-        tvTitle = rootView.findViewById(R.id.tvTitle);
-        llToolbarBtnContainer = rootView.findViewById(R.id.toolbarBtnContainer);
+
         progressBar = rootView.findViewById(R.id.progressBar);
         errorCoverViewContainer = rootView.findViewById(R.id.container);
+        toolbarContainer = rootView.findViewById(R.id.customToolbarContainer);
 
-        rootView.findViewById(R.id.btnClose).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                webViewClientInterface.closeWindow();
-            }
-        });
         webView.setVerticalScrollBarEnabled(false);
         //解决webView与refreshLayout滑动冲突
         swipeRefreshLayout.setOnChildScrollUpCallback((parent, child) -> webView.getWebScrollY() > 0);
@@ -114,10 +96,33 @@ public class WebViewHelper {
     }
 
 
+    /**
+     * @param url WebView第一个加载的链接，作为根链接
+     */
     public WebViewHelper setOriginUrl(String url) {
         originUrl = url;
         return this;
     }
+
+    /**
+     * 关闭窗口(关闭Activity)
+     */
+    public void closeWindow() {
+        webViewClientInterface.closeWindow();
+    }
+
+    /**
+     * 设置自定义Toolbar
+     *
+     * @param toolbar
+     * @return
+     */
+    public WebViewHelper setCustomToolbar(ToolbarInterface toolbar) {
+        toolbarInterface = toolbar;
+        toolbar.onAttach(toolbarContainer, this, activity);
+        return this;
+    }
+
 
     public WebViewHelper setConnectErrorCover(View connectErrorCoverView, View reloadBtn) {
         connectErrorCoverView.setVisibility(View.GONE);
@@ -147,8 +152,7 @@ public class WebViewHelper {
 
     public WebViewHelper showToolbar(boolean show) {
         int visibility = show ? View.VISIBLE : View.GONE;
-        rootView.findViewById(R.id.toolbarLayout).setVisibility(visibility);
-        rootView.findViewById(R.id.divider).setVisibility(visibility);
+        toolbarContainer.setVisibility(visibility);
         return this;
     }
 
@@ -184,19 +188,19 @@ public class WebViewHelper {
             public void onReceivedTitle(WebView view, String title) {
                 String curUrl = view.getUrl();
                 if (NullUtil.equal(originUrl, curUrl) && NullUtil.notEmpty(fixedTitle)) {
-                    tvTitle.setText(fixedTitle);
+                    toolbarInterface.onSetTitle(fixedTitle);
                 } else {
                     if (configTitleMap.get(curUrl) != null) {
-                        tvTitle.setText(configTitleMap.get(curUrl));
+                        toolbarInterface.onSetTitle(configTitleMap.get(curUrl));
                     } else {
                         if (null == title) {
-                            tvTitle.setText(null);
+                            toolbarInterface.onSetTitle(null);
                         } else {
                             String titleLower = title.toLowerCase();
                             if (titleLower.startsWith("http://") || titleLower.startsWith("https://")) {
-                                tvTitle.setText(null);
+                                toolbarInterface.onSetTitle(null);
                             } else {
-                                tvTitle.setText(title);
+                                toolbarInterface.onSetTitle(title);
                             }
                         }
                     }
@@ -269,7 +273,7 @@ public class WebViewHelper {
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 pageFailToOpen = false;
                 if (NullUtil.equal(url, originUrl)) {
-                    tvTitle.setText(fixedTitle);
+                    toolbarInterface.onSetTitle(fixedTitle);
                 }
                 progressBar.setVisibility(View.VISIBLE);
                 progressBar.setProgress(0);
@@ -312,7 +316,8 @@ public class WebViewHelper {
                     needClearHistory = false;
                     webView.clearHistory();
                 }
-                updateToolbarBtns();
+                toolbarInterface.onPageFinished(url);
+
             }
         });
     }
@@ -343,7 +348,7 @@ public class WebViewHelper {
 
     private boolean handleHttpLink(String url) {
         if (url.toLowerCase().startsWith("http")) {
-            tvTitle.setText(null);
+            toolbarInterface.onSetTitle(null);
             loadUrl(url);
             return true;
         }
@@ -356,7 +361,7 @@ public class WebViewHelper {
             switch (uri.getHost()) {
                 case WebViewScheme.ACTION_SET_TITLE://设置页面Title，如果这里设置了title，那么不使用DOM里面接收的TITLE
                     String title = uri.getQueryParameter("title");
-                    tvTitle.setText(title);
+                    toolbarInterface.onSetTitle(title);
                     configTitleMap.put(webView.getUrl(), title);
                     return true;
                 case WebViewScheme.ACTION_OPEN_LINK_IN_NEW_WINDOW://新的Activity打开网页
@@ -396,12 +401,11 @@ public class WebViewHelper {
                     return true;
                 case WebViewScheme.ACTION_CONFIG_OPTION_MENU://配置更多菜单
                 case WebViewScheme.ACTION_CONFIG_OPTION_MENU_OLD://配置更多菜单
-                    showOptionMenu(uri);
+                    toolbarInterface.onConfigOptionMenu(uri);
                     return true;
                 case WebViewScheme.ACTION_CONFIG_TOOLBAR_BTNS://配置Toolbar的按钮（文字按钮&图片按钮&图文按钮）
                 case WebViewScheme.ACTION_CONFIG_TOOLBAR_BTNS_OLD://配置Toolbar的按钮（文字按钮&图片按钮&图文按钮）
-                    configToolbar(uri);
-                    updateToolbarBtns();
+                    toolbarInterface.onConfigToolbar(uri);
                     return true;
                 case WebViewScheme.ACTION_RELOAD://重新加载
                     reload();
@@ -433,20 +437,12 @@ public class WebViewHelper {
     }
 
 
-    public void configToolbar(Uri uri) {
-        String json = getBase64EncodedParameter(uri, "params");
-        List<WebActionItem> actionItemList = new Gson().fromJson(json, new TypeToken<List<WebActionItem>>() {
-        }.getType());
-        toolbarCache.put(webView.getUrl(), actionItemList);
-    }
-
     /**
      * @return true 菜单显示状态被关闭 false 菜单原本就未显示
      */
     public boolean consumeBackEvent() {
-        boolean isShowing = null != popupWindow && popupWindow.isShowing();
-        if (isShowing) {
-            popupWindow.dismiss();
+        boolean consumedByToolbar = toolbarInterface.onBackBtnPress();
+        if (consumedByToolbar) {
             return true;
         } else {
             String backAction = backActionMap.get(webView.getUrl());
@@ -471,129 +467,28 @@ public class WebViewHelper {
         }
     }
 
-    public void updateToolbarBtns() {
-        if (null != llToolbarBtnContainer) {
-            if (toolbarCache.containsKey(webView.getUrl())) {
-                llToolbarBtnContainer.setVisibility(View.VISIBLE);
-            } else {
-                llToolbarBtnContainer.setVisibility(View.GONE);
-            }
-            llToolbarBtnContainer.removeAllViews();
-            List<WebActionItem> actionItems = toolbarCache.get(webView.getUrl());
-            if (null != actionItems) {
-                for (final WebActionItem actionItem : actionItems) {
-                    View vItem = LayoutInflater.from(activity).inflate(R.layout.lib_common_toolbar_btn_layout, llToolbarBtnContainer, false);
-                    setUpActionBtn(actionItem, vItem);
-                    llToolbarBtnContainer.addView(vItem);
-                }
-            }
-        }
-
-    }
-
-    private void setUpActionBtn(final WebActionItem actionItem, View vItem) {
-        TextView tvTitle = vItem.findViewById(R.id.tvTitle);
-        if (isEmpty(actionItem.title)) {
-            tvTitle.setVisibility(View.GONE);
-        } else {
-            tvTitle.setVisibility(View.VISIBLE);
-            tvTitle.setText(actionItem.title);
-        }
-        if (!isEmpty(actionItem.fontColor)) {
-            tvTitle.setTextColor(Color.parseColor(actionItem.fontColor));
-        }
-
-        TextView tvBadge = vItem.findViewById(R.id.tvBadge);
-        if (isEmpty(actionItem.badge)) {
-            tvBadge.setVisibility(View.GONE);
-        } else {
-            tvBadge.setVisibility(View.VISIBLE);
-            tvBadge.setText(actionItem.badge);
-        }
-
-        ImageView ivIcon = vItem.findViewById(R.id.ivIcon);
-        boolean showIvIcon = false;
-        if (null != actionItem.iconRes) {
-            showIvIcon = true;
-            ivIcon.setImageResource(actionItem.iconRes);
-        } else if (!isEmpty(actionItem.icon)) {
-            showIvIcon = true;
-            ivIcon.setVisibility(View.VISIBLE);
-            ImgUtil.load(actionItem.icon, ivIcon);
-        }
-        ivIcon.setVisibility(showIvIcon ? View.VISIBLE : View.GONE);
-
-        vItem.setOnClickListener(v -> {
-            if (null != popupWindow && popupWindow.isShowing()) {
-                popupWindow.dismiss();
-            }
-            handleUri(actionItem.action);
-        });
-        ImageView ivBg = vItem.findViewById(R.id.ivBg);
-        if (!isEmpty(actionItem.backgroundColor)) {
-            ivBg.setVisibility(View.VISIBLE);
-            ivBg.setColorFilter(Color.parseColor(actionItem.backgroundColor));
-        }
-    }
-
-
-    PopupWindow popupWindow;
-
-    private void showOptionMenu(Uri uri) {
-        String json = getBase64EncodedParameter(uri, "params");
-        List<WebActionItem> menuActionItemList = new Gson().fromJson(json, new TypeToken<List<WebActionItem>>() {
-        }.getType());
-        if (null == menuActionItemList || menuActionItemList.isEmpty()) {
-            return;
-        }
-        if (null == popupWindow) {
-            popupWindow = new PopupWindow(activity);
-        }
-        View contentView = popupWindow.getContentView();
-        if (null == contentView) {
-            contentView = LayoutInflater.from(activity).inflate(R.layout.lib_common_option_menu_layout, null);
-            popupWindow.setContentView(contentView);
-            popupWindow.setWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
-            popupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
-            popupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            popupWindow.setOutsideTouchable(true);
-        }
-        final LinearLayout container = contentView.findViewById(R.id.container);
-        container.removeAllViews();
-        LayoutInflater layoutInflater = LayoutInflater.from(activity);
-
-        for (WebActionItem actionItem : menuActionItemList) {
-            View vItem = layoutInflater.inflate(R.layout.lib_common_toolbar_menu_layout, container, false);
-            setUpActionBtn(actionItem, vItem);
-            container.addView(vItem);
-            View divider = new View(activity);
-            LinearLayout.MarginLayoutParams marginLayoutParams = new ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1);
-            marginLayoutParams.leftMargin = marginLayoutParams.rightMargin = (int) DensityUtil.dip2px(15);
-            divider.setLayoutParams(marginLayoutParams);
-            divider.setBackgroundColor(Color.WHITE);
-            container.addView(divider);
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            popupWindow.showAsDropDown(llToolbarBtnContainer, 0, 0, Gravity.RIGHT);
-        } else {
-            popupWindow.showAsDropDown(llToolbarBtnContainer);
-        }
-    }
 
     public View getView() {
         return rootView;
     }
 
-    public WebView getWebView() {
+    public TrWebView getWebView() {
         return webView;
     }
 
     public void loadUrl() {
-        loadUrl(originUrl);
+        if (null == toolbarInterface) {
+            toolbarInterface = new DefaultToolbar();
+            toolbarInterface.onAttach(toolbarContainer, this, activity);
+        }
+        handleUri(originUrl);
     }
 
     public abstract static class WebViewClientInterface {
 
+        /*
+         * 新的URL被拦截，自己处理返回true，交给WebViewHelper处理返回false
+         */
         public boolean onLoadUrl(final String url) {
             return false;
         }
@@ -608,6 +503,9 @@ public class WebViewHelper {
 
         }
 
+        /**
+         * @param url 该URL无法被APP处理，一般可以用系统Intent方式处理
+         */
         public void onNoResolver(String url) {
 
         }

@@ -25,14 +25,18 @@ import java.util.zip.ZipFile;
  * @author HanTuo on 2017/2/8.
  */
 
-public class FileUtil extends FileProvider{
+public class FileUtil extends FileProvider {
+
+    public static final String FILE_PROVIDER_SUFFIX = ".fileProvider";
+    public static final String FILE_PROVIDER_SCHEME = "content://";
+
     public static File getShareFile(String fileName) {
         return new File(getShareFileDir(), fileName);
     }
 
     public static Uri getShareFileUri(File file) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            return FileProvider.getUriForFile(Contexts.getInstance(), Contexts.getInstance().getPackageName() + ".fileprovider", file);
+            return FileProvider.getUriForFile(Contexts.getInstance(), Contexts.getInstance().getPackageName() + FILE_PROVIDER_SUFFIX, file);
         } else {
             return Uri.fromFile(file);
         }
@@ -44,7 +48,7 @@ public class FileUtil extends FileProvider{
 
     //content://com.tairanchina.taiheapp.fileprovider/open/1489217533007.jpeg
     public static File getRealFile(Uri uri) {
-        String path = uri.toString().replace("content://" + Contexts.getInstance().getPackageName() + ".fileprovider", Contexts.getInstance().getExternalCacheDir().getAbsolutePath());
+        String path = uri.toString().replace(FILE_PROVIDER_SCHEME + Contexts.getInstance().getPackageName() + FILE_PROVIDER_SUFFIX, Contexts.getInstance().getExternalCacheDir().getAbsolutePath());
         return new File(path);
     }
 
@@ -60,12 +64,7 @@ public class FileUtil extends FileProvider{
         } else {
             externalCacheDir = Contexts.getInstance().getCacheDir();
         }
-        File shareDir = new File(externalCacheDir, "open");
-        if (!shareDir.exists()) {
-            shareDir.mkdirs();
-        }
-
-        return shareDir;
+        return externalCacheDir;
     }
 
     public static void download(final String url, final Map<String, String> headers, final File targetFile, final DownloadListener listener) {

@@ -43,4 +43,11 @@
         android:onClick="onCLickToPicture"
         android:text="选择照片" />
 
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onCLickToCustomToolbarWebView"
+        android:text="自定义Toolbar的WebViewActivity" />
+
 </LinearLayout>

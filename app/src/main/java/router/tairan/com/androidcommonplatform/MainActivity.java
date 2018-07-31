@@ -5,17 +5,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 
+import com.trc.android.common.CommonLib;
 import com.trc.android.common.util.Contexts;
 import com.trc.android.common.util.ImgUtil;
 import com.trc.android.common.util.PicturesSelectUtil;
 
 import java.io.File;
+import java.net.URLEncoder;
 
 public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        CommonLib.init(getApplication());
         setContentView(R.layout.activity_main);
     }
 
@@ -24,12 +27,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickToWebViewScheme(View view) {
-        WebViewActivity.start(this, "http://taiheweb.applinzi.com/scheme.html");
+        WebViewActivity.start(this, "http://taiheweb.applinzi.com/scheme.html?toolbarTitle="+ URLEncoder.encode("我是自定义标题"));
 
     }
 
     public void onClickToCube(View view) {
-        WebViewActivity.start(this, "https://mofang.tfabric.com/");
+        WebViewActivity.start(this, "https://mofang.tfabric.com/?hideToolbar=true");
     }
 
     public void onCLickToPicture(View view) {
@@ -47,5 +50,9 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    public void onCLickToCustomToolbarWebView(View view) {
+        ToolbarWebViewActivity.start(this, "https://www.baidu.com/");
     }
 }

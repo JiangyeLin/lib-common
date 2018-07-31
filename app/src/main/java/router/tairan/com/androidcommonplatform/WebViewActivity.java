@@ -2,6 +2,7 @@ package router.tairan.com.androidcommonplatform;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
@@ -41,10 +42,14 @@ public class WebViewActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         webViewHelper = WebViewHelper.create(this);
+        String url = getIntent().getStringExtra("URL");
+
+        Uri uri = Uri.parse(url);
+        String title = uri.getQueryParameter("toolbarTitle");
         webViewHelper.setClientInterface(clientInterface)
-                .showToolbar(false)
-//                .setFixedTitle("固定对TITLE")
-                .setOriginUrl(getIntent().getStringExtra("URL"));
+                .showToolbar(!url.contains("hideToolbar=true"))
+                .setFixedTitle(title)
+                .setOriginUrl(url);
         setContentView(webViewHelper.getView());
         webViewHelper.loadUrl();
     }
