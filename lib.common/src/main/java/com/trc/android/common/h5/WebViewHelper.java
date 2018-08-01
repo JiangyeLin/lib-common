@@ -348,8 +348,21 @@ public class WebViewHelper {
 
     private boolean handleHttpLink(String url) {
         if (url.toLowerCase().startsWith("http")) {
-            toolbarInterface.onSetTitle(null);
             loadUrl(url);
+
+            Uri uri = Uri.parse(url);
+            String toolbarTitle = uri.getQueryParameter("toolbarTitle");
+            setFixedTitle(toolbarTitle);
+            toolbarInterface.onSetTitle(toolbarTitle);
+
+            if(url.contains("hideToolbar=true")){
+                showToolbar(false);
+            }else if(url.contains("hideToolbar=false")){
+                showToolbar(true);
+            }
+
+            String toolbarConfigs = uri.getQueryParameter("configToolbar");
+            configToolbar(Uri.parse("jsbridge://config_toolbar_btns?params=" + toolbarConfigs), url);
             return true;
         }
         return false;
@@ -405,7 +418,7 @@ public class WebViewHelper {
                     return true;
                 case WebViewScheme.ACTION_CONFIG_TOOLBAR_BTNS://配置Toolbar的按钮（文字按钮&图片按钮&图文按钮）
                 case WebViewScheme.ACTION_CONFIG_TOOLBAR_BTNS_OLD://配置Toolbar的按钮（文字按钮&图片按钮&图文按钮）
-                    toolbarInterface.onConfigToolbar(uri);
+                    toolbarInterface.onConfigToolbar(uri, webView.getUrl());
                     return true;
                 case WebViewScheme.ACTION_RELOAD://重新加载
                     reload();
@@ -474,6 +487,15 @@ public class WebViewHelper {
 
     public TrWebView getWebView() {
         return webView;
+    }
+
+    /**
+     *
+     * @param uri jsbridge://config_toolbar_btns?params=BASE64_ENCODED_JSON_ARRAY
+     * @param url 如果配置当前URL，则使用webView.getUrl()
+     */
+    public void configToolbar(Uri uri, String url) {
+        toolbarInterface.onConfigToolbar(uri, url);
     }
 
     public void loadUrl() {

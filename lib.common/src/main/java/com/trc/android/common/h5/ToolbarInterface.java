@@ -20,7 +20,7 @@ public interface ToolbarInterface {
      *
      * @param uri
      */
-    void onConfigToolbar(Uri uri);
+    void onConfigToolbar(Uri uri, String pageUrl);
 
     /**
      * 配置右上角菜单PopupWindow<br>

@@ -35,6 +35,7 @@ public class DefaultToolbar implements ToolbarInterface {
     protected WebViewHelper webViewHelper;
     protected Activity activity;
     protected TrWebView webView;
+    private String updateToken;
 
 
     @Override
@@ -56,11 +57,11 @@ public class DefaultToolbar implements ToolbarInterface {
     }
 
     @Override
-    public void onConfigToolbar(Uri uri) {
+    public void onConfigToolbar(Uri uri, String url) {
         String json = getBase64EncodedParameter(uri, "params");
         List<WebActionItem> actionItemList = new Gson().fromJson(json, new TypeToken<List<WebActionItem>>() {
         }.getType());
-        toolbarCache.put(webView.getUrl(), actionItemList);
+        toolbarCache.put(url, actionItemList);
         updateToolbarBtns();
     }
 
@@ -87,13 +88,19 @@ public class DefaultToolbar implements ToolbarInterface {
 
     public void updateToolbarBtns() {
         if (null != llToolbarBtnContainer) {
-            if (toolbarCache.containsKey(webView.getUrl())) {
+            String currentUrl = webView.getUrl();
+            if (currentUrl.equals(updateToken)) {//已经设置过了
+                return;
+            } else {
+                updateToken = currentUrl;//记录已经设置过了
+            }
+            if (toolbarCache.containsKey(currentUrl)) {
                 llToolbarBtnContainer.setVisibility(View.VISIBLE);
             } else {
                 llToolbarBtnContainer.setVisibility(View.GONE);
             }
             llToolbarBtnContainer.removeAllViews();
-            List<WebActionItem> actionItems = toolbarCache.get(webView.getUrl());
+            List<WebActionItem> actionItems = toolbarCache.get(currentUrl);
             if (null != actionItems) {
                 for (final WebActionItem actionItem : actionItems) {
                     View vItem = LayoutInflater.from(activity).inflate(R.layout.lib_common_toolbar_btn_layout, llToolbarBtnContainer, false);
@@ -102,7 +109,6 @@ public class DefaultToolbar implements ToolbarInterface {
                 }
             }
         }
-
     }
 
     PopupWindow popupWindow;

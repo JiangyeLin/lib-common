@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickToWebViewScheme(View view) {
-        WebViewActivity.start(this, "http://taiheweb.applinzi.com/scheme.html?toolbarTitle="+ URLEncoder.encode("我是自定义标题"));
+        WebViewActivity.start(this, "https://taiheweb.applinzi.com/index.html?toolbarTitle="+ URLEncoder.encode("我是自定义标题"));
 
     }
 

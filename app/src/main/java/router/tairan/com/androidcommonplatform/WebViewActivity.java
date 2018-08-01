@@ -43,12 +43,7 @@ public class WebViewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         webViewHelper = WebViewHelper.create(this);
         String url = getIntent().getStringExtra("URL");
-
-        Uri uri = Uri.parse(url);
-        String title = uri.getQueryParameter("toolbarTitle");
         webViewHelper.setClientInterface(clientInterface)
-                .showToolbar(!url.contains("hideToolbar=true"))
-                .setFixedTitle(title)
                 .setOriginUrl(url);
         setContentView(webViewHelper.getView());
         webViewHelper.loadUrl();
