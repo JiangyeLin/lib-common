@@ -368,7 +368,7 @@ public class WebViewHelper {
         if (url.toLowerCase().startsWith("http")) {
             loadUrl(url);
 
-            Uri uri = Uri.parse(url);
+            Uri uri = Uri.parse(url.replace("#", "ANTI_FRAGMENT"));
             String toolbarTitle = uri.getQueryParameter("toolbarTitle");
             setFixedTitle(toolbarTitle);
             toolbarInterface.onSetTitle(toolbarTitle);
