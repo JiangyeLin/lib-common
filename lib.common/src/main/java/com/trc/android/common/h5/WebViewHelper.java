@@ -1,6 +1,9 @@
 package com.trc.android.common.h5;
 
 import android.annotation.TargetApi;
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.OnLifecycleEvent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
@@ -12,6 +15,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
@@ -59,6 +63,20 @@ public class WebViewHelper {
 
     public WebViewHelper(FragmentActivity fragmentActivity) {
         activity = fragmentActivity;
+        activity.getLifecycle().addObserver(new LifecycleObserver() {
+            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+            private void antiMemoryLeak() {
+                ViewParent parent = webView.getParent();
+                if (parent != null) {
+                    ((ViewGroup) parent).removeView(webView);
+                }
+                webView.stopLoading();
+                // 退出时调用此方法，移除绑定的服务，否则某些特定系统会报错
+                webView.clearHistory();
+                webView.removeAllViews();
+                webView.destroy();
+            }
+        });
     }
 
 
@@ -355,9 +373,9 @@ public class WebViewHelper {
             setFixedTitle(toolbarTitle);
             toolbarInterface.onSetTitle(toolbarTitle);
 
-            if(url.contains("hideToolbar=true")){
+            if (url.contains("hideToolbar=true")) {
                 showToolbar(false);
-            }else if(url.contains("hideToolbar=false")){
+            } else if (url.contains("hideToolbar=false")) {
                 showToolbar(true);
             }
 
@@ -490,7 +508,6 @@ public class WebViewHelper {
     }
 
     /**
-     *
      * @param uri jsbridge://config_toolbar_btns?params=BASE64_ENCODED_JSON_ARRAY
      * @param url 如果配置当前URL，则使用webView.getUrl()
      */
