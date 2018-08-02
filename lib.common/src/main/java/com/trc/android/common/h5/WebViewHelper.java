@@ -380,7 +380,9 @@ public class WebViewHelper {
             }
 
             String toolbarConfigs = uri.getQueryParameter("configToolbar");
-            configToolbar(Uri.parse("jsbridge://config_toolbar_btns?params=" + toolbarConfigs), url);
+            if (!TextUtils.isEmpty(toolbarConfigs)) {
+                configToolbar(Uri.parse("jsbridge://config_toolbar_btns?params=" + toolbarConfigs), url);
+            }
             return true;
         }
         return false;

@@ -34,7 +34,7 @@ public class DefaultToolbar implements ToolbarInterface {
     protected WebViewHelper webViewHelper;
     protected Activity activity;
     protected TrWebView webView;
-    private String updateToken;
+    private Object lastConfig;
 
 
     @Override
@@ -71,7 +71,7 @@ public class DefaultToolbar implements ToolbarInterface {
 
     @Override
     public void onPageFinished(String url) {
-//        updateToolbarBtns();
+        updateToolbarBtns();
     }
 
     @Override
@@ -88,25 +88,22 @@ public class DefaultToolbar implements ToolbarInterface {
     public void updateToolbarBtns() {
         if (null != llToolbarBtnContainer) {
             String currentUrl = webView.getUrl();
-            if (currentUrl.equals(updateToken)) {//已经设置过了
-                return;
-            } else {
-                updateToken = currentUrl;//记录已经设置过了
-            }
+
             if (toolbarCache.containsKey(currentUrl)) {
                 llToolbarBtnContainer.setVisibility(View.VISIBLE);
             } else {
                 llToolbarBtnContainer.setVisibility(View.GONE);
             }
-            llToolbarBtnContainer.removeAllViews();
             List<WebActionItem> actionItems = toolbarCache.get(currentUrl);
-            if (null != actionItems) {
+            if (null != actionItems && lastConfig != actionItems) {
+                llToolbarBtnContainer.removeAllViews();
                 for (final WebActionItem actionItem : actionItems) {
                     View vItem = LayoutInflater.from(activity).inflate(R.layout.lib_common_toolbar_btn_layout, llToolbarBtnContainer, false);
                     setUpActionBtn(actionItem, vItem);
                     llToolbarBtnContainer.addView(vItem);
                 }
             }
+            lastConfig = actionItems;
         }
     }
 
