@@ -71,7 +71,7 @@ public class DefaultToolbar implements ToolbarInterface {
 
     @Override
     public void onPageFinished(String url) {
-        updateToolbarBtns();
+//        updateToolbarBtns();
     }
 
     @Override
