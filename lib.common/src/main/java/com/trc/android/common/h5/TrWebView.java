@@ -144,9 +144,12 @@ public class TrWebView extends WebView {
         if (null == url) {
             return;
         }
+        setCookie(url);
         Map<String, String> extraHeaders = new HashMap<>();
         extraHeaders.put("Referer", url);
-        setCookie(url);
+        if (url.startsWith("https://wx.tenpay.com/")) {//兼容微信支付H5版的BUG
+            extraHeaders.put("Referer", "https://pay.tairanmall.com/");
+        }
         super.loadUrl(url, extraHeaders);
     }
 

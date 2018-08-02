@@ -16,7 +16,6 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.tencent.smtt.sdk.WebView;
 import com.trc.android.common.util.ImgUtil;
 import com.trc.common.R;
 

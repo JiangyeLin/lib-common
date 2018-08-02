@@ -29,5 +29,5 @@ task clean(type: Delete) {
 }
 
 ext {
-    versionName = '1.0.6.1'
+    versionName = '1.0.6.2'
 }
