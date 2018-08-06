@@ -147,12 +147,7 @@ public class WebViewHelper {
         errorCoverView = connectErrorCoverView;
         errorCoverViewContainer.addView(connectErrorCoverView);
         if (null != reloadBtn) {
-            reloadBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    reload();
-                }
-            });
+            reloadBtn.setOnClickListener(v -> reload());
         }
         return this;
     }
@@ -236,16 +231,11 @@ public class WebViewHelper {
                 return true;
             }
 
-            // Andorid 4.1+
-//            public void openFileChooser(ValueCallback<Uri> uploadFile, String acceptType, String capture) {
-//                handleFileChooser(uploadFile, acceptType);
-//            }
-
-
+            //Andorid 4.1+
             @Override
-            public void openFileChooser(ValueCallback<Uri> valueCallback, String s, String s1) {
-                super.openFileChooser(valueCallback, s, s1);
-                handleFileChooser(valueCallback, s);
+            public void openFileChooser(ValueCallback<Uri> valueCallback, String acceptType, String capture) {
+                super.openFileChooser(valueCallback, acceptType, capture);
+                handleFileChooser(valueCallback, acceptType);
             }
 
             // Andorid 3.0 +
@@ -423,6 +413,12 @@ public class WebViewHelper {
                     } else {
                         activity.finish();
                     }
+                    return true;
+                case WebViewScheme.ACTION_SET_COOKIE:
+                    String domain = ParamsUtil.getBase64EncodedParameter(uri, "domain");
+                    String key = ParamsUtil.getBase64EncodedParameter(uri, "key");
+                    String value = ParamsUtil.getBase64EncodedParameter(uri, "value");
+                    CookieUtil.setCookie(domain, key, value);
                     return true;
                 case WebViewScheme.ACTION_CLOSE_WINDOW_OLD://推出所有的H5页面,关闭Activity
                 case WebViewScheme.ACTION_CLOSE_WINDOW://推出所有的H5页面,关闭Activity

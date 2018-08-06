@@ -18,6 +18,7 @@ public class WebViewScheme {
     public static final String ACTION_CLEAR_HISTORY = "clear_history";//清除网页堆栈记录
     public static final String ACTION_CLEAR_COOKIE = "clear_cookie";//清除Cookie
     public static final String ACTION_CLEAR_CACHE = "clear_cache";//清除缓存
+    public static final String ACTION_SET_COOKIE = "set_cookie";
 
     @Deprecated
     public static final String ACTION_CONFIG_OPTION_MENU_OLD = "configOptionMenu";//配置toolbar右上角里面的菜单
@@ -58,4 +59,5 @@ public class WebViewScheme {
      * 设置当前WebView加载的URL展示的TOOLBAR里面的标题
      */
     public static final String ACTION_SET_TITLE = "set_title";
+
 }

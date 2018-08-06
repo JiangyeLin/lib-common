@@ -88,9 +88,9 @@ public class TrWebView extends WebView {
         webSettings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
         setDownloadListener(new DownloadListener() {
             @Override
-            public void onDownloadStart(final String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
+            public void onDownloadStart(final String url, String userAgent, String contentDisposition, String mimeType, long contentLength) {
                 try {
-                    if (mimetype.equals("application/vnd.android.package-archive") || url.toLowerCase().contains(".apk")) {
+                    if (mimeType.equals("application/vnd.android.package-archive") || url.toLowerCase().contains(".apk")) {
                         final File file = FileUtil.getShareFile(url.hashCode() + "" + url.length() + ".apk");
                         if (file.exists()) {
                             Intent it = new Intent(Intent.ACTION_VIEW);
