@@ -48,23 +48,23 @@ public class ToolbarWebViewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         webViewHelper = WebViewHelper.create(this);
         webViewHelper.setClientInterface(clientInterface)
-//                .showToolbar(false)
+                .showToolbar(false)
 //                .setFixedTitle("固定对TITLE")
-                .setCustomToolbar(new DefaultToolbar() {
-                    @Override
-                    public void onAttach(ViewGroup container, WebViewHelper helper, Activity host) {
-                        activity = host;
-                        webViewHelper = helper;
-                        webView = helper.getWebView();
-                        LayoutInflater.from(container.getContext()).inflate(R.layout.my_h5_toolbar, container, true);
-                        tvTitle = container.findViewById(R.id.tvTitle);
-                        llToolbarBtnContainer = container.findViewById(R.id.toolbarBtnContainer);
-                        View btnClose = container.findViewById(R.id.btnClose);
-                        btnClose.setOnClickListener(v -> webViewHelper.closeWindow());
-                        View btnBack = container.findViewById(R.id.btnReturn);
-                        btnBack.setOnClickListener(v -> activity.onBackPressed());
-                    }
-                })
+//                .setCustomToolbar(new DefaultToolbar() {
+//                    @Override
+//                    public void onAttach(ViewGroup container, WebViewHelper helper, Activity host) {
+//                        activity = host;
+//                        webViewHelper = helper;
+//                        webView = helper.getWebView();
+//                        LayoutInflater.from(container.getContext()).inflate(R.layout.my_h5_toolbar, container, true);
+//                        tvTitle = container.findViewById(R.id.tvTitle);
+//                        llToolbarBtnContainer = container.findViewById(R.id.toolbarBtnContainer);
+//                        View btnClose = container.findViewById(R.id.btnClose);
+//                        btnClose.setOnClickListener(v -> webViewHelper.closeWindow());
+//                        View btnBack = container.findViewById(R.id.btnReturn);
+//                        btnBack.setOnClickListener(v -> activity.onBackPressed());
+//                    }
+//                })
                 .setOriginUrl(getIntent().getStringExtra("URL"));
         setContentView(webViewHelper.getView());
         webViewHelper.loadUrl();

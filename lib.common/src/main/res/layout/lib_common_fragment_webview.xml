@@ -36,14 +36,6 @@
                 android:layout_height="match_parent" />
         </android.support.v4.widget.SwipeRefreshLayout>
 
-
-        <View
-            android:id="@+id/divider"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_gravity="top"
-            android:background="#e0e0e0" />
-
         <ProgressBar
             android:id="@+id/progressBar"
             style="@style/LibCommon.WebView.ProgressBar.Horizontal"
