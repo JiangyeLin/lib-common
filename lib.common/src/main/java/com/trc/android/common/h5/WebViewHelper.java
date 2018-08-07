@@ -166,7 +166,7 @@ public class WebViewHelper {
     }
 
     /**
-     * 设置固定的TITLE，一旦设置，当前Toolbar的Title固定不变了
+     * 设置首页固定的TITLE
      *
      * @param title
      * @return
@@ -218,25 +218,21 @@ public class WebViewHelper {
 
             @Override
             public void onReceivedTitle(WebView view, String title) {
+                String finalTitle = title;
                 String curUrl = view.getUrl();
-                if (NullUtil.equal(originUrl, curUrl) && NullUtil.notEmpty(fixedTitle)) {
-                    toolbarInterface.onSetTitle(fixedTitle);
+                if (NullUtil.equal(originUrl, curUrl) && NullUtil.notEmpty(fixedTitle)) {//首页配置了固定标题
+                    finalTitle = fixedTitle;
                 } else {
                     if (configTitleMap.get(curUrl) != null) {
-                        toolbarInterface.onSetTitle(configTitleMap.get(curUrl));
-                    } else {
-                        if (null == title) {
-                            toolbarInterface.onSetTitle(null);
-                        } else {
-                            String titleLower = title.toLowerCase();
-                            if (titleLower.startsWith("http://") || titleLower.startsWith("https://")) {
-                                toolbarInterface.onSetTitle(null);
-                            } else {
-                                toolbarInterface.onSetTitle(title);
-                            }
+                        finalTitle = configTitleMap.get(curUrl);
+                    } else if (null != title) {
+                        if (title.startsWith("http://") || title.startsWith("https://")) {
+                            finalTitle = null;
                         }
                     }
                 }
+                toolbarInterface.onSetTitle(finalTitle);
+                webViewClientInterface.onReceiveTitle(finalTitle);
             }
 
             private ValueCallback valueCallback;
@@ -551,6 +547,10 @@ public class WebViewHelper {
         }
 
         public void onPageFinished(String url) {
+        }
+
+        public void onReceiveTitle(String title) {
+
         }
 
         public void onReceivedError(int errorCode, String description, String failingUrl) {
