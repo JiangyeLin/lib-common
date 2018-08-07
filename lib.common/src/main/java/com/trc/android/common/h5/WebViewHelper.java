@@ -103,12 +103,7 @@ public class WebViewHelper {
         swipeRefreshLayout.setOnRefreshListener(() -> {
             if (!webViewClientInterface.onRefresh()) {
                 reload();
-                swipeRefreshLayout.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        swipeRefreshLayout.setEnabled(false);
-                    }
-                }, 2000);
+                swipeRefreshLayout.postDelayed(() -> swipeRefreshLayout.setEnabled(false), 2000);
             }
         });
     }
@@ -131,9 +126,6 @@ public class WebViewHelper {
 
     /**
      * 设置自定义Toolbar
-     *
-     * @param toolbar
-     * @return
      */
     public WebViewHelper setCustomToolbar(ToolbarInterface toolbar) {
         toolbarInterface = toolbar;
@@ -141,7 +133,14 @@ public class WebViewHelper {
         return this;
     }
 
-
+    /**
+     * 设置网络不同时显示的错误页面，
+     * 参考{@link #setConnectErrorCover(int, int)}
+     *
+     * @param connectErrorCoverView 设置的View会被添加到特定FrameLayout中
+     * @param reloadBtn             该Button会被设置点击事件，点击后reload当前页面
+     * @return
+     */
     public WebViewHelper setConnectErrorCover(View connectErrorCoverView, View reloadBtn) {
         connectErrorCoverView.setVisibility(View.GONE);
         errorCoverView = connectErrorCoverView;
@@ -152,17 +151,37 @@ public class WebViewHelper {
         return this;
     }
 
+    /**
+     * 设置网络不同时显示的错误页面，
+     * 参考{@link #setConnectErrorCover(View, View)}
+     *
+     * @param layoutId 通过inflate资源ID为layoutId出来的的View会被添加到特定FrameLayout中
+     * @param btnId    该Button会被设置点击事件，点击后reload当前页面
+     * @return
+     */
     public WebViewHelper setConnectErrorCover(@LayoutRes int layoutId, @IdRes int btnId) {
         View failCover = LayoutInflater.from(activity).inflate(layoutId, errorCoverViewContainer, false);
         View reloadBtn = failCover.findViewById(btnId);
         return setConnectErrorCover(failCover, reloadBtn);
     }
 
+    /**
+     * 设置固定的TITLE，一旦设置，当前Toolbar的Title固定不变了
+     *
+     * @param title
+     * @return
+     */
     public WebViewHelper setFixedTitle(String title) {
         fixedTitle = title;
         return this;
     }
 
+    /**
+     * 是否显示Toolbar
+     *
+     * @param show
+     * @return
+     */
     public WebViewHelper showToolbar(boolean show) {
         int visibility = show ? View.VISIBLE : View.GONE;
         toolbarContainer.setVisibility(visibility);
@@ -310,28 +329,24 @@ public class WebViewHelper {
 
             @Override
             public void onPageFinished(WebView view, String url) {
-                if (null != webViewClientInterface) {
-                    webViewClientInterface.onPageFinished(url);
-                }
-                if (null != progressBar) {
-                    progressBar.setVisibility(View.GONE);
-                }
-                if (null != swipeRefreshLayout) {
-                    swipeRefreshLayout.setRefreshing(false);
-                    swipeRefreshLayout.setEnabled(pageFailToOpen);
-                }
+                webViewClientInterface.onPageFinished(url);
+                progressBar.setVisibility(View.GONE);
+                swipeRefreshLayout.setRefreshing(false);
+                swipeRefreshLayout.setEnabled(pageFailToOpen);
                 if (needClearHistory) {
                     needClearHistory = false;
                     webView.clearHistory();
                 }
                 toolbarInterface.onPageFinished(url);
-
+                progressBar.setVisibility(View.GONE);
             }
         });
     }
 
+    //return false 表示由当前WebView处理
     public boolean handleUri(String url) {
         try {
+            url = webViewClientInterface.transformUrl(url);
             Uri uri = Uri.parse(url);
             //先交给WebViewHelper的webViewClientInterface处理
             if (webViewClientInterface.onLoadUrl(url)) {
@@ -341,9 +356,10 @@ public class WebViewHelper {
                 return true;
             } else if (handleHttpLink(url)) {
                 //处理Http、Https链接
-                return false;
+                return true;
             } else if (url.startsWith("javascript:")) {
                 webView.loadUrl(url);
+                return false;
             } else {//调用系统处理URI
                 webViewClientInterface.onNoResolver(url);
             }
@@ -357,25 +373,35 @@ public class WebViewHelper {
     private boolean handleHttpLink(String url) {
         if (url.toLowerCase().startsWith("http")) {
             loadUrl(url);
-
-            Uri uri = Uri.parse(url.replace("#", "ANTI_FRAGMENT"));
-            String toolbarTitle = uri.getQueryParameter("toolbarTitle");
-            setFixedTitle(toolbarTitle);
-            toolbarInterface.onSetTitle(toolbarTitle);
-
-            if (url.contains("hideToolbar=true")) {
-                showToolbar(false);
-            } else if (url.contains("hideToolbar=false")) {
-                showToolbar(true);
-            }
-
-            String toolbarConfigs = uri.getQueryParameter("configToolbar");
-            if (!TextUtils.isEmpty(toolbarConfigs)) {
-                configToolbar(Uri.parse("jsbridge://config_toolbar_btns?params=" + toolbarConfigs), url);
-            }
+            handleExtraParamsInHttpUrl(url);
             return true;
         }
         return false;
+    }
+
+    /**
+     * 处理HTTP LINK中约定的参数
+     * <br>1:处理固定标题设置
+     * <br>2:Toolbar配置
+     *
+     * @param url
+     */
+    private void handleExtraParamsInHttpUrl(String url) {
+        Uri uri = Uri.parse(url.replace("#", "ANTI_FRAGMENT"));
+        String toolbarTitle = uri.getQueryParameter("toolbarTitle");
+        setFixedTitle(toolbarTitle);
+        toolbarInterface.onSetTitle(toolbarTitle);
+
+        if (url.contains("hideToolbar=true")) {
+            showToolbar(false);
+        } else if (url.contains("hideToolbar=false")) {
+            showToolbar(true);
+        }
+
+        String toolbarConfigs = uri.getQueryParameter("configToolbar");
+        if (!TextUtils.isEmpty(toolbarConfigs)) {
+            configToolbar(Uri.parse("jsbridge://config_toolbar_btns?params=" + toolbarConfigs), url);
+        }
     }
 
 
@@ -396,14 +422,14 @@ public class WebViewHelper {
                     if (null != link) {
                         link = webViewClientInterface.transformUrl(link);
                         if (link.toLowerCase().startsWith("http")) {
-                            loadUrl(link);
+                            handleUri(link);
                             needClearHistory = true;
                         }
                     }
                     return true;
                 case WebViewScheme.ACTION_GO_BACK_TO_H5_HOME://回到H5应用的首页
                 case WebViewScheme.ACTION_GO_BACK_TO_H5_HOME_OLD://回到H5应用的首页
-                    loadUrl(originUrl);
+                    handleUri(originUrl);
                     needClearHistory = true;
                     return true;
                 case WebViewScheme.ACTION_GO_BACK_OLD://返回上一个加载的页面
@@ -484,13 +510,7 @@ public class WebViewHelper {
                     return false;
                 }
             } else {
-                if (backAction.toLowerCase().startsWith("http")) {
-                    loadUrl(backAction);
-                } else if (backAction.startsWith("trmall://") || backAction.startsWith("jsbridge://")) {
-                    handleUri(backAction);
-                } else {
-                    loadUrl("javascript:" + backAction);
-                }
+                handleUri(backAction);
                 return true;
             }
         }
@@ -553,8 +573,16 @@ public class WebViewHelper {
             return url;
         }
 
+        /**
+         * 一般情况finish Activity
+         */
         public abstract void closeWindow();
 
+        /**
+         * SwipeRefreshLayout下拉刷新被触发，return true自己处理，记得恢复SwipeRefreshLayout刷新状态
+         *
+         * @return
+         */
         public boolean onRefresh() {
             return false;
         }
