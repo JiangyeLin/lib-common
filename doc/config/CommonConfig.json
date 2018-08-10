@@ -1,0 +1,14 @@
+{
+  "host": {//域名调整
+    "trc.com": "trmall.com",
+    "360taihe.com": "jrm.cn"
+  },
+  "request": {//请求地址调整
+    "http://trc.com/api/userinfo": "https://trmall.com/rest/api/userinfo",
+    "http://trc.com/api/profile": "https://trmall.com/rest/api/profile"
+  },
+  "text": {//文案调整
+    "北京银行存管保证": "安全可靠",
+    "感谢你的支持鱼理解": "感谢您的支持与理解"
+  }
+}

@@ -1,10 +1,13 @@
 package com.trc.android.common.util;
 
+import android.content.Context;
+import android.content.pm.ProviderInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 
@@ -26,9 +29,9 @@ import java.util.zip.ZipFile;
  */
 
 public class FileUtil extends FileProvider {
-
-    public static final String FILE_PROVIDER_SUFFIX = ".fileProvider";
-    public static final String FILE_PROVIDER_SCHEME = "content://";
+    public static final String EXTERNAL_CACHE_OPEN = "external-cache-open";
+    public static final String CACHE_OPEN = "cache-open";
+    static File sShareDir;
 
     public static File getShareFile(String fileName) {
         return new File(getShareFileDir(), fileName);
@@ -36,35 +39,52 @@ public class FileUtil extends FileProvider {
 
     public static Uri getShareFileUri(File file) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            return FileProvider.getUriForFile(Contexts.getInstance(), Contexts.getInstance().getPackageName() + FILE_PROVIDER_SUFFIX, file);
+            return FileProvider.getUriForFile(Contexts.getInstance(), Contexts.getInstance().getPackageName() + ".fileProvider", file);
         } else {
             return Uri.fromFile(file);
         }
+    }
+
+    @Override
+    public void attachInfo(@NonNull Context context, @NonNull ProviderInfo info) {
+        super.attachInfo(context, info);
     }
 
     public static Uri getShareFileUri(String fileName) {
         return getShareFileUri(getShareFile(fileName));
     }
 
-    //content://com.tairanchina.taiheapp.fileprovider/open/1489217533007.jpeg
+    //content://com.tairanchina.taiheapp.fileProvider/external-cache-open/1489217533007.jpeg
+    //content://com.tairanchina.taiheapp.fileProvider/cache-open/1489217533007.jpeg
     public static File getRealFile(Uri uri) {
-        String path = uri.toString().replace(FILE_PROVIDER_SCHEME + Contexts.getInstance().getPackageName() + FILE_PROVIDER_SUFFIX, Contexts.getInstance().getExternalCacheDir().getAbsolutePath());
-        return new File(path);
+        String path = uri.getPath();
+        if (path.contains("/" + EXTERNAL_CACHE_OPEN + "/")) {
+            return new File(ContextCompat.getExternalCacheDirs(Contexts.getInstance())[0], path.substring(path.indexOf(EXTERNAL_CACHE_OPEN)));
+        } else if (path.contains("/" + CACHE_OPEN + "/")) {
+            return new File(ContextCompat.getExternalCacheDirs(Contexts.getInstance())[0], path.substring(path.indexOf(CACHE_OPEN)));
+        } else {
+            //No Way here
+            assert false;
+            return null;
+        }
     }
+
 
     public static File getShareFileDir() {
         File externalCacheDir = null;
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {//部分手机没有外部存储卡，获得的目录是"/"
             File[] externalCacheDirs = ContextCompat.getExternalCacheDirs(Contexts.getInstance());
-            if (externalCacheDirs.length > 0) {
-                externalCacheDir = externalCacheDirs[0];
-            } else {
-                externalCacheDir = Contexts.getInstance().getExternalCacheDir();
-            }
+            externalCacheDir = externalCacheDirs[0];
+            sShareDir = new File(externalCacheDir, EXTERNAL_CACHE_OPEN);
         } else {
             externalCacheDir = Contexts.getInstance().getCacheDir();
+            sShareDir = new File(externalCacheDir, CACHE_OPEN);
         }
-        return externalCacheDir;
+        if (!sShareDir.exists()) {
+            sShareDir.mkdirs();
+        }
+
+        return sShareDir;
     }
 
     public static void download(final String url, final Map<String, String> headers, final File targetFile, final DownloadListener listener) {

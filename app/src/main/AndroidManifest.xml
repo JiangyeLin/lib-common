@@ -21,14 +21,16 @@
         <activity android:name=".WebViewActivity" />
 
         <provider
-            android:name="android.support.v4.content.FileProvider"
+            android:name="com.trc.android.common.util.FileUtil"
             android:authorities="${applicationId}.fileProvider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/filepaths" />
+                android:resource="@xml/lib_common_filepaths" />
         </provider>
+
+        <activity android:name=".TrTextViewTestActivity"></activity>
 
         <activity android:name=".ToolbarWebViewActivity"></activity>
     </application>

@@ -55,4 +55,9 @@ public class MainActivity extends AppCompatActivity {
     public void onCLickToCustomToolbarWebView(View view) {
         ToolbarWebViewActivity.start(this, "https://www.baidu.com/");
     }
+
+    //测试支持全局字典配置的TrTextView
+    public void onClickToTrTextView(View view) {
+        TrTextViewTestActivity.start(this);
+    }
 }

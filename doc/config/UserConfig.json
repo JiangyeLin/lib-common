@@ -1,0 +1,9 @@
+{
+  "version": {
+    "versionName": "1.0.0.0",
+    "forceUpdate": true,
+    "downloadUrl": "https://aliyun.com/trc/1.0.0.0.apk"
+  },
+  "dingLog":true, //开启钉钉发送日志
+  "debugMode":true //开启调试模式
+}
