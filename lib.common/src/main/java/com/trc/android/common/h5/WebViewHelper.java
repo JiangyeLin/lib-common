@@ -237,7 +237,6 @@ public class WebViewHelper {
 
             private ValueCallback valueCallback;
 
-
             @TargetApi(Build.VERSION_CODES.LOLLIPOP)
             @Override
             public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
@@ -368,11 +367,39 @@ public class WebViewHelper {
 
     private boolean handleHttpLink(String url) {
         if (url.toLowerCase().startsWith("http")) {
-            loadUrl(url);
+            String lastUrl = webView.getUrl();
+            if (url.equals(lastUrl)) {
+                reload();
+            } else {
+                loadUrl(url);
+                handlePossibleBugIfLinkHasHash(lastUrl, url);
+            }
             handleExtraParamsInHttpUrl(url);
             return true;
         }
         return false;
+    }
+
+    /**
+     * 当URL#之前的部分一致时，会出现一下几种情况
+     * X5
+     * <br>没有#的，自己跳自己，没有堆栈，但可拦截，页面不刷新
+     * <br>有#的，自己跳自己，有堆栈，没拦截
+     * <br>有#的，跳转有#的，有堆栈，没拦截
+     * <br>有#的，调没#的，有堆栈，有拦截
+     * <br>没#的，跳有#的，有堆栈，有拦截的
+     *
+     * @param lastUrl
+     * @param url
+     */
+    private void handlePossibleBugIfLinkHasHash(String lastUrl, String url) {
+        int endIndex = lastUrl.indexOf('#');
+        if (endIndex > 0) {
+            String schemeAuthority = lastUrl.substring(0, endIndex);
+            if (url.startsWith(schemeAuthority)) {
+                webView.reload();
+            }
+        }
     }
 
     /**

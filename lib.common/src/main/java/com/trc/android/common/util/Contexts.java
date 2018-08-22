@@ -87,17 +87,22 @@ public class Contexts {
         // Returns the identifier of this process
         int pid = android.os.Process.myPid();
         ActivityManager activityManager = (ActivityManager) getInstance().getSystemService(Context.ACTIVITY_SERVICE);
-        List list = activityManager.getRunningAppProcesses();
-        Iterator i = list.iterator();
-        while (i.hasNext()) {
-            ActivityManager.RunningAppProcessInfo info = (ActivityManager.RunningAppProcessInfo) (i.next());
-            try {
-                if (info.pid == pid) {
-                    // 根据进程的信息获取当前进程的名字
-                    return getInstance().getPackageName().equals(info.processName);
+        List list = null;
+        if (activityManager != null) {
+            list = activityManager.getRunningAppProcesses();
+            if (null != list) {
+                Iterator i = list.iterator();
+                while (i.hasNext()) {
+                    ActivityManager.RunningAppProcessInfo info = (ActivityManager.RunningAppProcessInfo) (i.next());
+                    try {
+                        if (info.pid == pid) {
+                            // 根据进程的信息获取当前进程的名字
+                            return getInstance().getPackageName().equals(info.processName);
+                        }
+                    } catch (Exception e) {
+                        ExceptionManager.handle(e);
+                    }
                 }
-            } catch (Exception e) {
-                ExceptionManager.handle(e);
             }
         }
         return false;
