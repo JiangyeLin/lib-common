@@ -2,7 +2,6 @@ package com.trc.android.common;
 
 import android.app.Application;
 
-import com.tencent.smtt.sdk.WebView;
 import com.trc.android.common.login.LoginStatusManager;
 import com.trc.android.common.util.Contexts;
 import com.trc.android.common.util.ObjCacheUtil;
@@ -13,7 +12,6 @@ import com.trc.android.common.util.ObjCacheUtil;
  * <br>{@link Contexts}
  * <br>{@link ObjCacheUtil}
  * <br>{@link LoginStatusManager}
- * <br>{@link WebView}
  */
 public class CommonLib {
 
@@ -21,7 +19,6 @@ public class CommonLib {
         Contexts.init(application);
         ObjCacheUtil.init(application);
         LoginStatusManager.init(application);
-        new WebView(application);
     }
 
 }

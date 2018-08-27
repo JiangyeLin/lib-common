@@ -3,11 +3,17 @@
 buildscript {
 
     repositories {
-        google()
-        jcenter()
+        maven {
+            name 'jcenter'//可省略
+            url "https://maven.aliyun.com/repository/jcenter"
+        }
+        maven {
+            name 'google'//可省略
+            url "https://maven.aliyun.com/repository/google"
+        }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.2'
+        classpath 'com.android.tools.build:gradle:3.1.4'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -16,9 +22,16 @@ buildscript {
 
 allprojects {
     repositories {
-        google()
-        jcenter()
-        maven {//公司Maven私服
+        maven {
+            name 'jcenter'//可省略
+            url "https://maven.aliyun.com/repository/jcenter"//阿里云仓库镜像地址
+        }
+        maven {
+            name 'google'//可省略
+            url "https://maven.aliyun.com/repository/google"//阿里云仓库镜像地址
+        }
+        maven {
+            name '公司Maven私服'
             url "http://121.41.17.205:18081/nexus/content/repositories/android-realeases"
         }
     }
@@ -29,5 +42,5 @@ task clean(type: Delete) {
 }
 
 ext {
-    versionName = '1.0.7.9'
+    versionName = '1.0.8.0'
 }

@@ -20,6 +20,7 @@ import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
 import com.tencent.smtt.export.external.interfaces.SslErrorHandler;
+import com.tencent.smtt.export.external.interfaces.WebResourceResponse;
 import com.tencent.smtt.sdk.ValueCallback;
 import com.tencent.smtt.sdk.WebChromeClient;
 import com.tencent.smtt.sdk.WebView;
@@ -264,7 +265,21 @@ public class WebViewHelper {
                     PicturesSelectUtil.select(activity, false, new PicturesSelectUtil.OnPicturesCallback() {
                         @Override
                         public void onSelect(File file) {
-                            valueCallback.onReceiveValue(Uri.fromFile(file));
+                            Uri uri = Uri.fromFile(file);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                //X5内核可能会要求传递单个URI参数
+                                try {
+                                    valueCallback.onReceiveValue(new Uri[]{uri});
+                                } catch (ClassCastException e) {
+                                    valueCallback.onReceiveValue(uri);
+                                }
+                            } else {
+                                try {
+                                    valueCallback.onReceiveValue(uri);
+                                } catch (ClassCastException e) {
+                                    valueCallback.onReceiveValue(new Uri[]{uri});
+                                }
+                            }
                         }
 
                         @Override
@@ -320,6 +335,17 @@ public class WebViewHelper {
                     errorCoverView.setVisibility(View.VISIBLE);
                 }
                 webViewClientInterface.onReceivedError(errorCode, description, failingUrl);
+            }
+
+
+            @Override
+            public WebResourceResponse shouldInterceptRequest(WebView webView, String url) {
+                WebResourceResponse shouldInterceptRequest = webViewClientInterface.shouldInterceptRequest(url);
+                if (shouldInterceptRequest != null) {
+                    return shouldInterceptRequest;
+                } else {
+                    return super.shouldInterceptRequest(webView, url);
+                }
             }
 
             @Override
@@ -614,6 +640,9 @@ public class WebViewHelper {
             return false;
         }
 
+        public WebResourceResponse shouldInterceptRequest(String url) {
+            return null;
+        }
     }
 
 }
