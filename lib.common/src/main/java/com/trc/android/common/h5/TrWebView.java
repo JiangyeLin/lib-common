@@ -115,10 +115,12 @@ public class TrWebView extends WebView {
                                             urlSet.remove(url);
                                             if (tmpFile.renameTo(file)) {
                                                 Intent it = new Intent(Intent.ACTION_VIEW);
-                                                it.setDataAndType(FileUtil.getShareFileUri(file), "application/vnd.android.package-archive");
                                                 it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                                                it.setAction(Intent.CATEGORY_DEFAULT);
-                                                context.startActivity(it);
+                                                it.setDataAndType(FileUtil.getShareFileUri(file), "application/vnd.android.package-archive");
+                                                it.addCategory(Intent.CATEGORY_DEFAULT);
+                                                if (it.resolveActivity(context.getPackageManager()) != null) {
+                                                    context.startActivity(it);
+                                                }
                                             }
                                         }
                                     }

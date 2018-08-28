@@ -7,6 +7,7 @@ import android.view.View;
 
 import com.trc.android.common.CommonLib;
 import com.trc.android.common.util.Contexts;
+import com.trc.android.common.util.FileUtil;
 import com.trc.android.common.util.ImgUtil;
 import com.trc.android.common.util.PicturesSelectUtil;
 

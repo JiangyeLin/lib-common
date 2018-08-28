@@ -1,6 +1,7 @@
 package com.trc.android.common.util;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ProviderInfo;
 import android.net.Uri;
 import android.os.Build;
@@ -294,5 +295,15 @@ public class FileUtil extends FileProvider {
             ExceptionManager.handle(t);
         }
         return false;
+    }
+
+    public static void installApk(Context context, File file) {
+        Intent it = new Intent(Intent.ACTION_VIEW);
+        it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        it.setDataAndType(FileUtil.getShareFileUri(file), "application/vnd.android.package-archive");
+        it.addCategory(Intent.CATEGORY_DEFAULT);
+        if (it.resolveActivity(context.getPackageManager()) != null) {
+            context.startActivity(it);
+        }
     }
 }

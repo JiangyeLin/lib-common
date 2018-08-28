@@ -5,11 +5,23 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application>
         <activity
             android:name="com.trc.android.common.util.PicturesSelectUtil"
             android:theme="@style/LibCommonTransparent" />
         <activity android:name="com.trc.android.common.util.PermissionUtil" />
+
+        <provider
+            android:name="com.trc.android.common.util.FileUtil"
+            android:authorities="${applicationId}.fileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/lib_common_file_paths" />
+        </provider>
     </application>
 </manifest>
