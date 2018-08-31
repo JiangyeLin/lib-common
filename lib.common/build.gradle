@@ -61,7 +61,7 @@ uploadArchives {
     repositories {
         mavenDeployer {
             repository(url: 'http://121.41.17.205:18081/nexus/content/repositories/android-realeases') {
-                authentication(userName: 'hzht', password: '123456')
+                authentication(userName: NAME, password: PWD)
             }
             pom.project {
                 groupId 'com.trc.android'
