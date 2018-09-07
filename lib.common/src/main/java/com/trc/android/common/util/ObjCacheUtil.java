@@ -28,10 +28,18 @@ public class ObjCacheUtil {
     }
 
     public static void saveAsync(final Callback<Boolean> callback, @NonNull final File file, @NonNull final Object obj) {
-        new Thread(() -> {
-            final boolean success = save(file, obj);
-            if (null != callback)
-                sHandler.post(() -> callback.onResult(success));
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final boolean success = save(file, obj);
+                if (null != callback)
+                    sHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            callback.onResult(success);
+                        }
+                    });
+            }
         }).start();
     }
 
@@ -112,20 +120,23 @@ public class ObjCacheUtil {
     }
 
     public static <T> void getAsync(final Callback<T> callback, @NonNull final File file) {
-        new Thread(() -> {
-            try {
-                Type type = callback.getClass().getGenericInterfaces()[0];
-                type = ((ParameterizedType) type).getActualTypeArguments()[0];
-                final T t = get(file, type);
-                sHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        callback.onResult(t);
-                    }
-                });
-            } catch (Exception e) {
-                callback.onResult(null);
-                e.printStackTrace();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Type type = callback.getClass().getGenericInterfaces()[0];
+                    type = ((ParameterizedType) type).getActualTypeArguments()[0];
+                    final T t = get(file, type);
+                    sHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            callback.onResult(t);
+                        }
+                    });
+                } catch (Exception e) {
+                    callback.onResult(null);
+                    e.printStackTrace();
+                }
             }
         }).start();
     }
