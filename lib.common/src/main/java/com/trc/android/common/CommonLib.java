@@ -2,6 +2,7 @@ package com.trc.android.common;
 
 import android.app.Application;
 
+import com.tencent.smtt.sdk.QbSdk;
 import com.trc.android.common.login.LoginStatusManager;
 import com.trc.android.common.util.Contexts;
 import com.trc.android.common.util.ObjCacheUtil;
@@ -19,6 +20,18 @@ public class CommonLib {
         Contexts.init(application);
         ObjCacheUtil.init(application);
         LoginStatusManager.init(application);
+        QbSdk.initX5Environment(application, new QbSdk.PreInitCallback() {
+
+            @Override
+            public void onCoreInitFinished() {
+                System.out.println("x5CoreInitComplete");
+            }
+
+            @Override
+            public void onViewInitFinished(boolean x5CoreInitComplete) {
+                System.out.println("x5CoreInitComplete："+x5CoreInitComplete);
+            }
+        });
     }
 
 }

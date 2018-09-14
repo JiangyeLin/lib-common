@@ -27,6 +27,7 @@ import com.tencent.smtt.sdk.WebView;
 import com.tencent.smtt.sdk.WebViewClient;
 import com.trc.android.common.exception.ExceptionManager;
 import com.trc.android.common.util.ContactSelectUtil;
+import com.trc.android.common.util.LogUtil;
 import com.trc.android.common.util.NullUtil;
 import com.trc.android.common.util.PicturesSelectUtil;
 import com.trc.common.R;
@@ -419,12 +420,16 @@ public class WebViewHelper {
      * @param url
      */
     private void handlePossibleBugIfLinkHasHash(String lastUrl, String url) {
-        int endIndex = lastUrl.indexOf('#');
-        if (endIndex > 0) {
-            String schemeAuthority = lastUrl.substring(0, endIndex);
-            if (url.startsWith(schemeAuthority)) {
-                webView.reload();
+        try {
+            int endIndex = lastUrl.indexOf('#');
+            if (endIndex > 0) {
+                String schemeAuthority = lastUrl.substring(0, endIndex);
+                if (url.startsWith(schemeAuthority)) {
+                    webView.reload();
+                }
             }
+        } catch (Exception e) {
+            LogUtil.e(e);
         }
     }
 
