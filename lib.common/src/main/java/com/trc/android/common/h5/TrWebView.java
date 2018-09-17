@@ -94,6 +94,7 @@ public class TrWebView extends WebView {
                         final File file = FileUtil.getShareFile(url.hashCode() + "" + url.length() + ".apk");
                         if (file.exists()) {
                             Intent it = new Intent(Intent.ACTION_VIEW);
+                            it.addCategory(Intent.CATEGORY_DEFAULT);
                             it.setDataAndType(FileUtil.getShareFileUri(file), "application/vnd.android.package-archive");
                             it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION);
                             getContext().startActivity(it);
