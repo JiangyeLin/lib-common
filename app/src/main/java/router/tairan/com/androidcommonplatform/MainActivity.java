@@ -1,5 +1,6 @@
 package router.tairan.com.androidcommonplatform;
 
+import android.content.Intent;
 import android.Manifest;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -63,6 +64,10 @@ public class MainActivity extends AppCompatActivity {
     //测试支持全局字典配置的TrTextView
     public void onClickToTrTextView(View view) {
         TrTextViewTestActivity.start(this);
+    }
+
+    public void onClickToHomeFrame(View view) {
+        startActivity(new Intent(this, HomeFrameTestActivity.class));
     }
 
     public void onClickToSinglePermission(View view) {
