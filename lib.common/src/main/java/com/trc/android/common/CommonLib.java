@@ -20,6 +20,7 @@ public class CommonLib {
         Contexts.init(application);
         ObjCacheUtil.init(application);
         LoginStatusManager.init(application);
+        QbSdk.setDownloadWithoutWifi(true);
         QbSdk.initX5Environment(application, new QbSdk.PreInitCallback() {
 
             @Override
