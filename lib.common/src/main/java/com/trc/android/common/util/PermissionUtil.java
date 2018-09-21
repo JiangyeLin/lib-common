@@ -3,7 +3,6 @@ package com.trc.android.common.util;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -22,10 +21,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-
 /**
  * @author HanTuo on 16/8/5.
  * 检查权限，必要的化申请权限
+ * @author linjiangye  权限申请流程优化
+ * 调整前：弹窗提醒，只要有一个权限曾经拒绝过，则跳转到系统的应用setting界面，由用户手动授予权限
+ * 调整后：
+ * 1.直接通过弹窗申请，需要什么申请什么,无需跳转到setting页面手动授予
+ * 2.若用户拒绝，重复步骤1
+ * 3.若用户拒绝且勾选了不再提示，则弹窗跳转到设置页面，由用户手动授予
  */
 public class PermissionUtil extends AppCompatActivity {
     public static final String INTENT_KEY_PERMISSIONS = "INTENT_KEY_PERMISSIONS";
@@ -36,6 +40,8 @@ public class PermissionUtil extends AppCompatActivity {
     private ArrayList<String> permissionList;
     private String tips;
     private AlertDialog alertDialog;
+
+    private boolean isNeverAskAgain = false;//用户是否勾选了不再提示
 
     public interface OnPermissionCallback {
         void onGranted();
@@ -117,7 +123,13 @@ public class PermissionUtil extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         permissionList = getIntent().getStringArrayListExtra(INTENT_KEY_PERMISSIONS);
         tips = getIntent().getStringExtra(INTENT_KEY_PERMISSION_TIPS);
+    }
 
+    //申请权限
+    private void doResuestPermissions() {
+        String[] permissions = new String[permissionList.size()];
+        permissionList.toArray(permissions);
+        ActivityCompat.requestPermissions(this, permissions, 1);
     }
 
     @Override
@@ -137,10 +149,20 @@ public class PermissionUtil extends AppCompatActivity {
             sendBroadcast(intent);
             finish();
         } else {
+            if (shouldShowExplainationDialog()) {
+                //用户只是拒绝了权限 弹窗提醒授予权限
+                isNeverAskAgain = false;
+            } else {
+                //用户拒绝了权限，并且勾选了不再提示，弹窗提醒用户前往设置中进行授权
+                isNeverAskAgain = true;
+            }
             showExplainationDialog();
         }
     }
 
+    /**
+     * 显示解释弹窗
+     */
     private void showExplainationDialog() {
         final ArrayList deniedList = new ArrayList();
         for (String permission : permissionList) {
@@ -148,13 +170,14 @@ public class PermissionUtil extends AppCompatActivity {
                 deniedList.add(permission);
             }
         }
+        String positiveText = isNeverAskAgain ? "前往设置" : "同意授权";
+
         if (alertDialog == null) {
-            alertDialog = new AlertDialog.Builder(this, android.R.style.Theme_Holo_Light_Dialog_NoActionBar)
+            alertDialog = new AlertDialog.Builder(this)
                     .setTitle("权限申请")
                     .setMessage(tips)
-                    .setPositiveButton("去设置", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
+                    .setPositiveButton(positiveText, (dialog, which) -> {
+                        if (isNeverAskAgain) {
                             Intent intent = new Intent();
                             intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
                             Uri uri = Uri.fromParts("package", getPackageName(), null);
@@ -164,17 +187,16 @@ public class PermissionUtil extends AppCompatActivity {
                             } else {
                                 startActivity(new Intent(Settings.ACTION_APPLICATION_SETTINGS));
                             }
+                        } else {
+                            doResuestPermissions();
                         }
                     })
-                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Intent intent = new Intent(ACTION_REQUEST_PERMISSION);
-                            intent.putExtra(KEY_IS_GRANTED, false);
-                            intent.putExtra(KEY_DENIED_LIST, deniedList);
-                            sendBroadcast(intent);
-                            finish();
-                        }
+                    .setNegativeButton("取消", (dialog, which) -> {
+                        Intent intent = new Intent(ACTION_REQUEST_PERMISSION);
+                        intent.putExtra(KEY_IS_GRANTED, false);
+                        intent.putExtra(KEY_DENIED_LIST, deniedList);
+                        sendBroadcast(intent);
+                        finish();
                     })
                     .setCancelable(false)
                     .create();
@@ -205,9 +227,7 @@ public class PermissionUtil extends AppCompatActivity {
             if (shouldShowExplainationDialog()) {
                 showExplainationDialog();
             } else {
-                String[] permissions = new String[permissionList.size()];
-                permissionList.toArray(permissions);
-                ActivityCompat.requestPermissions(this, permissions, 1);
+                doResuestPermissions();
             }
         }
     }

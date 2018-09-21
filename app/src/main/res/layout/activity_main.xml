@@ -61,4 +61,16 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onClickToSinglePermission"
+        android:text="单个权限申请测试" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onClickToMultiPermission"
+        android:text="多个权限申请测试" />
 </LinearLayout>

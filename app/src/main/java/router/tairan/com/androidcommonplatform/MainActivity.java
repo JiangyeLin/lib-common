@@ -1,18 +1,21 @@
 package router.tairan.com.androidcommonplatform;
 
+import android.Manifest;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.trc.android.common.CommonLib;
 import com.trc.android.common.util.Contexts;
-import com.trc.android.common.util.FileUtil;
 import com.trc.android.common.util.ImgUtil;
+import com.trc.android.common.util.PermissionUtil;
 import com.trc.android.common.util.PicturesSelectUtil;
 
 import java.io.File;
 import java.net.URLEncoder;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -28,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickToWebViewScheme(View view) {
-        WebViewActivity.start(this, "https://taiheweb.applinzi.com/index.html?toolbarTitle="+ URLEncoder.encode("我是自定义标题"));
+        WebViewActivity.start(this, "https://taiheweb.applinzi.com/index.html?toolbarTitle=" + URLEncoder.encode("我是自定义标题"));
 
     }
 
@@ -60,5 +63,34 @@ public class MainActivity extends AppCompatActivity {
     //测试支持全局字典配置的TrTextView
     public void onClickToTrTextView(View view) {
         TrTextViewTestActivity.start(this);
+    }
+
+    public void onClickToSinglePermission(View view) {
+        PermissionUtil.requestPermission(this, Manifest.permission.ACCESS_FINE_LOCATION, "单个位置权限申请测试", new PermissionUtil.OnPermissionCallback() {
+            @Override
+            public void onGranted() {
+                Toast.makeText(MainActivity.this, "单个位置权限申请成功", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onDenied() {
+                Toast.makeText(MainActivity.this, "单个位置权限申请拒绝", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public void onClickToMultiPermission(View view) {
+        PermissionUtil.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                "多个权限申请测试", new PermissionUtil.OnPermissionsCallback() {
+                    @Override
+                    public void onGranted() {
+                        Toast.makeText(MainActivity.this, "多个权限申请成功", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onDenied(List<String> deniedPermissions) {
+                        Toast.makeText(MainActivity.this, "多个权限申请失败", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 }
