@@ -47,15 +47,17 @@ public class TrWebView extends WebView {
     @Override
     protected void onWindowVisibilityChanged(int visibility) {
         super.onWindowVisibilityChanged(visibility);
-        if (visibility == View.VISIBLE) {
-            if (needLoadOnResume) {
-                loadUrl("javascript:onResume()");
+        String url = getUrl();
+        if (url != null && url.contains("registLifecircle=true")) {
+            if (visibility == View.VISIBLE) {
+                if (needLoadOnResume) {
+                    loadUrl("javascript:onResume()");
+                }
+            } else if (visibility == View.GONE) {
+                needLoadOnResume = true;
+                loadUrl("javascript:onPause()");
             }
-        } else if (visibility == View.GONE) {
-            needLoadOnResume = true;
-            loadUrl("javascript:onPause()");
         }
-
     }
 
     @Override
