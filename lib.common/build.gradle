@@ -14,6 +14,7 @@ android {
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         resourcePrefix('lib_common_')
+        ndk { abiFilters "armeabi" }
     }
 
     buildTypes {
@@ -66,7 +67,7 @@ uploadArchives {
             pom.project {
                 groupId 'com.trc.android'
                 artifactId 'lib-common'
-                version '1.0.8.9'
+                version '1.0.9.0'
                 packaging 'aar'
             }
         }
