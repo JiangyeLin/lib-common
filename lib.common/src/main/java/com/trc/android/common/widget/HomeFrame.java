@@ -54,7 +54,7 @@ public class HomeFrame extends FrameLayout {
 
     public HomeFrame setCurrentIndex(int pageIndex) {
         this.pageIndex = pageIndex;
-        if (isAttachedToWindow) {
+        if (isAttachedToWindow && fragments != null && fragments.length > 0) {
             Fragment fragment = fragments[pageIndex];
             FragmentTransaction fragmentTransaction = hostActivity.getSupportFragmentManager().beginTransaction();
 
