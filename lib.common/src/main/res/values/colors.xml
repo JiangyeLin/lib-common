@@ -9,4 +9,8 @@
     <color name="lib_common_h5_progress_bar">#3BB7E9</color>
     <color name="lib_common_h5_title">#525252</color>
     <color name="lib_common_h5_toolbar_background_color">#f8f8f8</color>
+
+    <color name="lib_common_devtool_background_grey">#eeeeee</color>
+    <color name="lib_common_devtool_indigo">#3F51B5</color>
+    <color name="lib_common_devtool_txt_secondary">#757575</color>
 </resources>

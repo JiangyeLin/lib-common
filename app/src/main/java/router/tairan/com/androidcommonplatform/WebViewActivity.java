@@ -30,7 +30,6 @@ public class WebViewActivity extends AppCompatActivity {
         }
     };
 
-
     public static void start(Context context, String url) {
         Intent intent = new Intent(context, WebViewActivity.class);
         intent.putExtra("URL", url);
@@ -43,6 +42,9 @@ public class WebViewActivity extends AppCompatActivity {
         webViewHelper = WebViewHelper.create(this);
         String url = getIntent().getStringExtra("URL");
         webViewHelper.setClientInterface(clientInterface)
+//                .showToolbar(false)
+//                .setFixedTitle("固定对TITLE")
+                .setDebug(true)
                 .setOriginUrl(url);
         setContentView(webViewHelper.getView());
         webViewHelper.loadUrl();

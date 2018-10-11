@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!--log 二级菜单-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="32dp">
+
+        <TextView
+            android:id="@+id/tvJump"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/lib_common_devtool_color_selector"
+            android:gravity="center"
+            android:text="Info" />
+
+        <TextView
+            android:id="@+id/tvConsole"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/lib_common_devtool_color_selector"
+            android:gravity="center"
+            android:text="Console Log" />
+
+        <TextView
+            android:id="@+id/tvError"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/lib_common_devtool_color_selector"
+            android:gravity="center"
+            android:text="Error" />
+    </LinearLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</LinearLayout>

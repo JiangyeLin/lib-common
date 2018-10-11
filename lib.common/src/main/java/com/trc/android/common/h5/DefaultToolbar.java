@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -48,6 +49,11 @@ public class DefaultToolbar implements ToolbarInterface {
         llToolbarBtnContainer = container.findViewById(R.id.toolbarBtnContainer);
         View btnClose = container.findViewById(R.id.btnClose);
         btnClose.setOnClickListener(v -> webViewHelper.closeWindow());
+        setOnFastRepeatClickListener(tvTitle, 10, v -> {
+            Toast.makeText(host, "进入Debug模式", Toast.LENGTH_LONG).show();
+            webViewHelper.setDebug(true);
+            webViewHelper.showDebugBtn();
+        });
     }
 
     @Override
@@ -200,5 +206,22 @@ public class DefaultToolbar implements ToolbarInterface {
         }
     }
 
+    /**
+     * @param times 点击事件最终触发时需要的次数
+     */
+    private void setOnFastRepeatClickListener(View view, final int times, final View.OnClickListener onClickListener) {
+        view.setOnClickListener(new View.OnClickListener() {
+            int clickTime;
+
+            @Override
+            public void onClick(View v) {
+                clickTime++;
+                if (clickTime > times) {
+                    clickTime = 0;
+                    onClickListener.onClick(v);
+                }
+            }
+        });
+    }
 
 }

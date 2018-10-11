@@ -16,25 +16,40 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.view.Window;
+import android.webkit.JavascriptInterface;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
+import com.tencent.smtt.export.external.interfaces.ConsoleMessage;
 import com.tencent.smtt.export.external.interfaces.SslErrorHandler;
+import com.tencent.smtt.export.external.interfaces.WebResourceRequest;
 import com.tencent.smtt.export.external.interfaces.WebResourceResponse;
+import com.tencent.smtt.sdk.CookieManager;
 import com.tencent.smtt.sdk.ValueCallback;
 import com.tencent.smtt.sdk.WebChromeClient;
 import com.tencent.smtt.sdk.WebView;
 import com.tencent.smtt.sdk.WebViewClient;
 import com.trc.android.common.exception.ExceptionManager;
+import com.trc.android.common.h5.devtool.FloatingButton;
+import com.trc.android.common.h5.devtool.HtmlFormatterUtil;
+import com.trc.android.common.h5.devtool.WebDevTool;
+import com.trc.android.common.h5.devtool.WebviewRecorderModel;
 import com.trc.android.common.util.ContactSelectUtil;
+import com.trc.android.common.util.FileUtil;
 import com.trc.android.common.util.LogUtil;
 import com.trc.android.common.util.NullUtil;
 import com.trc.android.common.util.PicturesSelectUtil;
 import com.trc.common.R;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 import static com.trc.android.common.h5.ParamsUtil.getBase64EncodedParameter;
 
@@ -49,7 +64,7 @@ public class WebViewHelper {
     private View rootView;
     private TrWebView webView;
 
-
+    private boolean isDebug;
     private ProgressBar progressBar;
     private FrameLayout errorCoverViewContainer;
     private ToolbarInterface toolbarInterface;
@@ -59,12 +74,16 @@ public class WebViewHelper {
     private SwipeRefreshLayout swipeRefreshLayout;
     private boolean needClearHistory;
     private HashMap<String, String> configTitleMap = new HashMap<>(1);
-
+    private WebDevTool webDevTool;
     private View errorCoverView;
     private ViewGroup toolbarContainer;
+    private View debugBtn;
 
     public WebViewHelper(FragmentActivity fragmentActivity) {
         activity = fragmentActivity;
+    }
+
+    private void registLifecycle() {
         activity.getLifecycle().addObserver(new LifecycleObserver() {
             @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
             private void antiMemoryLeak() {
@@ -77,6 +96,23 @@ public class WebViewHelper {
                 webView.clearHistory();
                 webView.removeAllViews();
                 webView.destroy();
+
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+            private void onResume() {
+                if (isDebug) {
+                    webDevTool.putRecorder(new WebviewRecorderModel(WebDevTool.KEY_RESUME, "OnResume"));
+                }
+                webView.onResume();
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+            private void onPause() {
+                if (isDebug) {
+                    webDevTool.putRecorder(new WebviewRecorderModel(WebDevTool.kEY_PAUSE, "OnPause"));
+                }
+                webView.onPause();
             }
         });
     }
@@ -87,7 +123,28 @@ public class WebViewHelper {
         webViewHelper.initViews();
         webViewHelper.setupChromeClient();
         webViewHelper.setupWebClient();
+        webViewHelper.registLifecycle();
         return webViewHelper;
+    }
+
+    public WebViewHelper setDebug(boolean debug) {
+        isDebug = debug;
+        if (isDebug && null == webDevTool) {
+            webDevTool = new WebDevTool(this);
+            webDevTool.setUA(webView.getSettings().getUserAgentString());
+            webView.addJavascriptInterface(new InJavaScriptLocalObj(), "java_obj");
+        }
+        WebView.setWebContentsDebuggingEnabled(debug);
+        return this;
+    }
+
+    public final class InJavaScriptLocalObj {
+        @JavascriptInterface
+        public void showSource(String html) {
+            new Thread(() -> {
+                HtmlFormatterUtil.formatter(html, FileUtil.getShareFile("WebDebug.html"));
+            }).start();
+        }
     }
 
     private void initViews() {
@@ -190,19 +247,26 @@ public class WebViewHelper {
         return this;
     }
 
-    private void reload() {
+    public void reload() {
         if (null != errorCoverView) {
             errorCoverView.setVisibility(View.GONE);
         }
+        if (isDebug)
+            webDevTool.putRecorder(new WebviewRecorderModel(WebDevTool.KEY_RELOAD, originUrl));
+
         webView.reload();
     }
 
-    private void loadUrl(String url) {
+    public void loadUrl(String url) {
         if (null != errorCoverView) {
             errorCoverView.setVisibility(View.GONE);
         }
         webView.loadUrl(url);
+        if (isDebug) {
+            webDevTool.putRecorder(new WebviewRecorderModel(WebDevTool.KEY_LOADURL, url));
+        }
     }
+
 
     public WebViewHelper setClientInterface(WebViewClientInterface clientInterface) {
         webViewClientInterface = clientInterface;
@@ -212,6 +276,17 @@ public class WebViewHelper {
 
     private void setupChromeClient() {
         webView.setWebChromeClient(new WebChromeClient() {
+
+            @Override
+            public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+                if (isDebug) {
+                    String consoleLog = String.format("%1$s -- From line %2$s of %3$s", consoleMessage.message(), consoleMessage.lineNumber(), consoleMessage.sourceId());
+                    webDevTool.putConsoleLog(new WebviewRecorderModel(WebDevTool.KEY_CONSOLE, consoleLog));
+                }
+
+                return super.onConsoleMessage(consoleMessage);
+            }
+
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
                 progressBar.setProgress(newProgress);
@@ -263,9 +338,9 @@ public class WebViewHelper {
             private void handleFileChooser(ValueCallback filePathCallback, String acceptTypes) {
                 try {
                     valueCallback = filePathCallback;
-                    PicturesSelectUtil.select(activity, false, new PicturesSelectUtil.OnPicturesCallback() {
+                    PicturesSelectUtil.select(activity, "选择图片需要相机权限", false, new PicturesSelectUtil.OnPicturesCallback() {
                         @Override
-                        public void onSelect(File file) {
+                        public void onSelect(File file, int type) {
                             Uri uri = Uri.fromFile(file);
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                                 //X5内核可能会要求传递单个URI参数
@@ -315,6 +390,64 @@ public class WebViewHelper {
                 }
                 progressBar.setVisibility(View.VISIBLE);
                 progressBar.setProgress(0);
+
+                if (isDebug) {
+                    webDevTool.putRecorder(new WebviewRecorderModel(WebDevTool.KEY_PAGESTART, url));
+                    if (webDevTool.getCustomCookies() != null) {
+                        for (WebviewRecorderModel model : webDevTool.getCustomCookies()) {
+                            Uri uri = Uri.parse(url);
+                            CookieUtil.setCookie(uri.getHost(), model.key, model.desc);
+                        }
+                    }
+
+                    //获取cookie
+                    CookieManager cookieManager = CookieManager.getInstance();
+                    webDevTool.setSimpleCookies(cookieManager.getCookie(url));
+                }
+            }
+
+            /**
+             * 建立链接从header里面取token
+             */
+            private void executeRequest(WebResourceRequest request) {
+                String scheme = request.getUrl().getScheme().trim();
+                if (scheme.equalsIgnoreCase("http") || scheme.equalsIgnoreCase("https")) {
+                    new Thread(() -> {
+                        try {
+                            String url = request.getUrl().toString();
+                            URLConnection connection = new URL(url).openConnection();
+                            connection.addRequestProperty("Cookie", CookieManager.getInstance().getCookie(url));
+                            for (Map.Entry<String, String> entry : request.getRequestHeaders().entrySet()) {
+                                connection.addRequestProperty(entry.getKey(), entry.getValue());
+                            }
+                            connection.connect();
+                            String cookie = connection.getHeaderField("Set-Cookie");
+                            if (cookie != null) {
+                                webDevTool.addDetailCookie(cookie);
+                            }
+                            connection.getInputStream().close();
+                        } catch (MalformedURLException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }).start();
+                }
+            }
+
+            @Override
+            public WebResourceResponse shouldInterceptRequest(WebView webView, WebResourceRequest webResourceRequest) {
+                //记录 所有加载的资源(网页，接口，资源文件，js，css等)
+                if (webDevTool != null && webResourceRequest != null && webResourceRequest.getUrl() != null) {
+                    String host = webResourceRequest.getUrl().getHost();
+                    webDevTool.loadSources(host, webResourceRequest.getUrl().toString());
+
+                    if (webDevTool.isDetailCookie() && "get".equalsIgnoreCase(webResourceRequest.getMethod())) {
+
+                        executeRequest(webResourceRequest);
+                    }
+                }
+                return super.shouldInterceptRequest(webView, webResourceRequest);
             }
 
             @SuppressWarnings("deprecation")
@@ -325,6 +458,9 @@ public class WebViewHelper {
                     originUrl = webView.getUrl();
                 }
                 boolean result = handleUri(url);
+                if (isDebug) {
+                    webDevTool.putRecorder(new WebviewRecorderModel(WebDevTool.KEY_OVERRIDE_URL_LOADING, url));
+                }
                 return result;
             }
 
@@ -336,6 +472,20 @@ public class WebViewHelper {
                     errorCoverView.setVisibility(View.VISIBLE);
                 }
                 webViewClientInterface.onReceivedError(errorCode, description, failingUrl);
+                if (isDebug) {
+                    webDevTool.putErrorLog(new WebviewRecorderModel(
+                            WebDevTool.KEY_RECEIVE_ERROR, description + " " + failingUrl));
+                }
+            }
+
+            //404等错误会回调这里
+            @Override
+            public void onReceivedHttpError(WebView webView, WebResourceRequest webResourceRequest, WebResourceResponse webResourceResponse) {
+                super.onReceivedHttpError(webView, webResourceRequest, webResourceResponse);
+
+                if (isDebug) {
+                    webDevTool.putErrorLog(new WebviewRecorderModel(String.valueOf(webResourceResponse.getStatusCode()), webResourceRequest.getUrl().toString()));
+                }
             }
 
 
@@ -361,6 +511,11 @@ public class WebViewHelper {
                 }
                 toolbarInterface.onPageFinished(url);
                 progressBar.setVisibility(View.GONE);
+                if (isDebug) {
+                    webDevTool.putRecorder(new WebviewRecorderModel(WebDevTool.KEY_PAGRFINISH, url));
+                    // 注入js 获取html源文件
+                    webView.loadUrl("javascript:window.java_obj.showSource(document.getElementsByTagName('html')[0].innerHTML);");
+                }
             }
         });
     }
@@ -489,7 +644,7 @@ public class WebViewHelper {
                 case WebViewScheme.ACTION_GO_BACK_OLD://返回上一个加载的页面
                 case WebViewScheme.ACTION_GO_BACK://返回上一个加载的页面
                     if (webView.canGoBack()) {
-                        webView.goBack();
+                        goBack();
                     } else {
                         activity.finish();
                     }
@@ -558,7 +713,7 @@ public class WebViewHelper {
             backActionMap.remove(webView.getUrl());
             if (TextUtils.isEmpty(backAction)) {
                 if (webView.canGoBack()) {
-                    webView.goBack();
+                    goBack();
                     return true;
                 } else {
                     return false;
@@ -567,6 +722,13 @@ public class WebViewHelper {
                 handleUri(backAction);
                 return true;
             }
+        }
+    }
+
+    private void goBack() {
+        webView.goBack();
+        if (isDebug) {
+            webDevTool.putRecorder(new WebviewRecorderModel(WebDevTool.KEY_GOBACK, "回退"));
         }
     }
 
@@ -587,10 +749,22 @@ public class WebViewHelper {
         toolbarInterface.onConfigToolbar(uri, url);
     }
 
+    protected void showDebugBtn() {
+        if (debugBtn == null)
+            debugBtn = FloatingButton.create(activity.findViewById(Window.ID_ANDROID_CONTENT)
+                    , R.drawable.lib_common_debug
+                    , 60, 60
+                    , (v) -> webDevTool.showDebugPage());
+    }
+
     public void loadUrl() {
         if (null == toolbarInterface) {
-            toolbarInterface = new DefaultToolbar();
-            toolbarInterface.onAttach(toolbarContainer, this, activity);
+            DefaultToolbar defaultToolbar = new DefaultToolbar();
+            this.toolbarInterface = defaultToolbar;
+            this.toolbarInterface.onAttach(toolbarContainer, this, activity);
+            if (isDebug) {
+                showDebugBtn();
+            }
         }
         handleUri(originUrl);
     }

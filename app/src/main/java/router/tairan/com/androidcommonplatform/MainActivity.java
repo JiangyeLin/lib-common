@@ -42,9 +42,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void onCLickToPicture(View view) {
         Contexts.init(getApplication());
-        PicturesSelectUtil.select(this, false, new PicturesSelectUtil.OnPicturesCallback() {
+        PicturesSelectUtil.select(this,"Hello", false, new PicturesSelectUtil.OnPicturesCallback() {
             @Override
-            public void onSelect(File file) {
+            public void onSelect(File file, int type) {
                 Log.d("onSelect", "选择成功: " + file.getPath());
                 File tmp = new File(getExternalCacheDir(), "tmp.jpg");
                 ImgUtil.compress(file, tmp, 100, 640 * 384);

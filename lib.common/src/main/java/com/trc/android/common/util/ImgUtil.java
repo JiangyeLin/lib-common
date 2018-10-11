@@ -58,12 +58,6 @@ public class ImgUtil {
             File compressedImg = new File(file.getParentFile(), file.getPath().hashCode() + ".jpg");
             if (options.outWidth * options.outHeight > picSizeLimit) {
                 Bitmap bitmap = getLimitedBitmap(file.getAbsolutePath(), picSizeLimit);
-                float scale = (float) Math.sqrt(bitmap.getWidth() * bitmap.getHeight() * 1d / picSizeLimit);
-                if (scale > 1) {
-                    Matrix matrix = new Matrix();
-                    matrix.setScale(1 / scale, 1 / scale);
-                    bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, false);
-                }
                 BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(compressedImg.getPath(), false));
                 bitmap.compress(CompressFormat.JPEG, quality, bos);
                 bos.flush();
@@ -92,12 +86,6 @@ public class ImgUtil {
             BitmapFactory.decodeFile(srcFile.getPath(), options);
             if (options.outWidth * options.outHeight > picSizeLimit) {
                 Bitmap bitmap = getLimitedBitmap(srcFile.getAbsolutePath(), picSizeLimit);
-                float scale = (float) Math.sqrt(bitmap.getWidth() * bitmap.getHeight() * 1d / picSizeLimit);
-                if (scale > 1) {
-                    Matrix matrix = new Matrix();
-                    matrix.setScale(1 / scale, 1 / scale);
-                    bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, false);
-                }
                 BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(targetFile.getPath(), false));
                 bitmap.compress(CompressFormat.JPEG, quality, bos);
                 bos.flush();

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="8dp">
+
+        <Button
+            android:id="@+id/btnReload"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ReLoad"
+            android:textAllCaps="false" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal">
+
+            <android.support.v7.widget.AppCompatAutoCompleteTextView
+                android:id="@+id/autotvUrl"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:completionThreshold="1"
+                android:hint="请输入想要加载的url（可选）"
+                android:inputType="textUri"
+                android:textSize="14dp" />
+
+            <Button
+                android:id="@+id/btnLoadurl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="LoadUrl"
+                android:textAllCaps="false" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnDebugx5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="打开x5内核调试工具" />
+
+        <Button
+            android:id="@+id/btnClearCache"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="清除缓存" />
+
+        <Button
+            android:id="@+id/btnClearCookie"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="清除cookie" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="请在下方输入你要设置的cookie"
+            android:textColor="#000000"
+            android:textSize="14dp" />
+
+        <EditText
+            android:id="@+id/etDomain"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="domain（可选）"
+            android:textSize="14dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/etKey"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:hint="key"
+                android:textSize="14dp" />
+
+            <Space
+                android:layout_width="20dp"
+                android:layout_height="0dp" />
+
+            <EditText
+                android:id="@+id/etValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="请输入你要设置的cookie"
+                android:textSize="14dp" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnSetCookie"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="set cookie" />
+    </LinearLayout>
+</ScrollView>

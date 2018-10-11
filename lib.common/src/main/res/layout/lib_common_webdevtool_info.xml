@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/tvSystem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="4dp"
+            android:textColor="#673ab7"
+            tools:text="system: android 7.1" />
+
+        <TextView
+            android:id="@+id/tvUa"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="4dp"
+            android:textColor="#673ab7"
+            tools:text="UA:  " />
+
+        <TextView
+            android:id="@+id/tvX5Status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="4dp"
+            android:textColor="#673ab7"
+            tools:text="X5内核状态： " />
+
+        <!--当前url-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="4dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="当前url："
+                android:textColor="#673ab7" />
+
+            <TextView
+                android:id="@+id/tvCurUrl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="http://www.baidu.com"
+                android:textColor="#673ab7"
+                android:textIsSelectable="true" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnJumpBrowser"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="跳转到浏览器中打开"
+            android:textSize="14sp" />
+
+        <!--cookies 设置-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-------- Cookies ---------" />
+
+            <Switch
+                android:id="@+id/sw_isDetailCookie"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:hint="查看服务器Set-Cookie  " />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="默认只显示key-value，如果选中switch，下次加载时会显示header中的set-cookie参数(如果有的话)，包含path、expires等字段"
+            android:paddingTop="4dp"
+            android:paddingBottom="8dp" />
+
+        <LinearLayout
+            android:id="@+id/llCookies"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+        </LinearLayout>
+        <!--cookies end-->
+
+    </LinearLayout>
+</ScrollView>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="4dp">
+
+    <TextView
+        android:id="@+id/tvKey"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#673ab7"
+        tools:text="key:" />
+
+    <TextView
+        android:id="@+id/tvContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        android:textColor="#673ab7"
+        android:textIsSelectable="true"
+        tools:text="https://www.baidu.com" />
+</LinearLayout>
