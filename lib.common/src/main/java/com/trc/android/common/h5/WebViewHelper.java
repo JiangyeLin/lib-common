@@ -576,10 +576,13 @@ public class WebViewHelper {
      */
     private void handlePossibleBugIfLinkHasHash(String lastUrl, String url) {
         try {
-            int endIndex = lastUrl.indexOf('#');
-            if (endIndex > 0) {
-                String schemeAuthority = lastUrl.substring(0, endIndex);
-                if (url.startsWith(schemeAuthority)) {
+            int lastUrlHashIndex = lastUrl.indexOf('#');
+            int currentUrlHashIndex = url.indexOf('#');
+            if (lastUrlHashIndex == currentUrlHashIndex && -1 != lastUrlHashIndex) {
+                String s1 = lastUrl.substring(0, lastUrlHashIndex);
+                String s2 = url.substring(0, currentUrlHashIndex);
+                if (s1.equals(s2)) {
+                    //两个页面#号之前的部分一样
                     webView.reload();
                 }
             }
