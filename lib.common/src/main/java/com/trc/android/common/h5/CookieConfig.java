@@ -30,9 +30,9 @@ public class CookieConfig {
         list.remove(k);
     }
 
-    static class KeyValue implements Serializable {
-        String key;
-        String value;
+    public static class KeyValue implements Serializable {
+        public String key;
+        public String value;
 
         public KeyValue(String key, String value) {
             if (value == null) value = "";
