@@ -35,7 +35,6 @@ import com.trc.android.common.exception.ExceptionManager;
 import com.trc.android.common.h5.devtool.FloatingButton;
 import com.trc.android.common.h5.devtool.HtmlFormatterUtil;
 import com.trc.android.common.h5.devtool.WebDevTool;
-import com.trc.android.common.h5.devtool.WebviewRecorderModel;
 import com.trc.android.common.util.ContactSelectUtil;
 import com.trc.android.common.util.FileUtil;
 import com.trc.android.common.util.LogUtil;
@@ -103,7 +102,7 @@ public class WebViewHelper {
             @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
             private void onResume() {
                 if (isDebug) {
-                    webDevTool.putRecorder(new WebviewRecorderModel(WebDevTool.KEY_RESUME, "OnResume"));
+                    webDevTool.putRecorder(new WebDevTool.RecorderModel(WebDevTool.KEY_RESUME, "OnResume"));
                 }
                 webView.onResume();
             }
@@ -111,7 +110,7 @@ public class WebViewHelper {
             @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
             private void onPause() {
                 if (isDebug) {
-                    webDevTool.putRecorder(new WebviewRecorderModel(WebDevTool.kEY_PAUSE, "OnPause"));
+                    webDevTool.putRecorder(new WebDevTool.RecorderModel(WebDevTool.kEY_PAUSE, "OnPause"));
                 }
                 webView.onPause();
             }
@@ -253,7 +252,7 @@ public class WebViewHelper {
             errorCoverView.setVisibility(View.GONE);
         }
         if (isDebug)
-            webDevTool.putRecorder(new WebviewRecorderModel(WebDevTool.KEY_RELOAD, originUrl));
+            webDevTool.putRecorder(new WebDevTool.RecorderModel(WebDevTool.KEY_RELOAD, originUrl));
 
         webView.reload();
     }
@@ -264,7 +263,7 @@ public class WebViewHelper {
         }
         webView.loadUrl(url);
         if (isDebug) {
-            webDevTool.putRecorder(new WebviewRecorderModel(WebDevTool.KEY_LOADURL, url));
+            webDevTool.putRecorder(new WebDevTool.RecorderModel(WebDevTool.KEY_LOADURL, url));
         }
     }
 
@@ -282,7 +281,7 @@ public class WebViewHelper {
             public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
                 if (isDebug) {
                     String consoleLog = String.format("%1$s -- From line %2$s of %3$s", consoleMessage.message(), consoleMessage.lineNumber(), consoleMessage.sourceId());
-                    webDevTool.putConsoleLog(new WebviewRecorderModel(WebDevTool.KEY_CONSOLE, consoleLog));
+                    webDevTool.putConsoleLog(new WebDevTool.RecorderModel(WebDevTool.KEY_CONSOLE, consoleLog));
                 }
 
                 return super.onConsoleMessage(consoleMessage);
@@ -393,17 +392,17 @@ public class WebViewHelper {
                 progressBar.setProgress(0);
 
                 if (isDebug) {
-                    webDevTool.putRecorder(new WebviewRecorderModel(WebDevTool.KEY_PAGESTART, url));
+                    webDevTool.putRecorder(new WebDevTool.RecorderModel(WebDevTool.KEY_PAGESTART, url));
                     if (webDevTool.getCustomCookies() != null) {
-                        for (WebviewRecorderModel model : webDevTool.getCustomCookies()) {
+                        for (WebDevTool.RecorderModel model : webDevTool.getCustomCookies()) {
                             Uri uri = Uri.parse(url);
                             CookieUtil.setCookie(uri.getHost(), model.key, model.desc);
                         }
                     }
 
                     //获取cookie
-                    CookieManager cookieManager = CookieManager.getInstance();
-                    webDevTool.setSimpleCookies(cookieManager.getCookie(url));
+                    webDevTool.setX5Cookies(com.tencent.smtt.sdk.CookieManager.getInstance().getCookie(url));
+                    webDevTool.setSystemCookies(android.webkit.CookieManager.getInstance().getCookie(url));
                 }
             }
 
@@ -460,7 +459,7 @@ public class WebViewHelper {
                 }
                 boolean result = handleUri(url);
                 if (isDebug) {
-                    webDevTool.putRecorder(new WebviewRecorderModel(WebDevTool.KEY_OVERRIDE_URL_LOADING, url));
+                    webDevTool.putRecorder(new WebDevTool.RecorderModel(WebDevTool.KEY_OVERRIDE_URL_LOADING, url));
                 }
                 return result;
             }
@@ -474,7 +473,7 @@ public class WebViewHelper {
                 }
                 webViewClientInterface.onReceivedError(errorCode, description, failingUrl);
                 if (isDebug) {
-                    webDevTool.putErrorLog(new WebviewRecorderModel(
+                    webDevTool.putErrorLog(new WebDevTool.RecorderModel(
                             WebDevTool.KEY_RECEIVE_ERROR, description + " " + failingUrl));
                 }
             }
@@ -485,7 +484,7 @@ public class WebViewHelper {
                 super.onReceivedHttpError(webView, webResourceRequest, webResourceResponse);
 
                 if (isDebug) {
-                    webDevTool.putErrorLog(new WebviewRecorderModel(String.valueOf(webResourceResponse.getStatusCode()), webResourceRequest.getUrl().toString()));
+                    webDevTool.putErrorLog(new WebDevTool.RecorderModel(String.valueOf(webResourceResponse.getStatusCode()), webResourceRequest.getUrl().toString()));
                 }
             }
 
@@ -513,7 +512,7 @@ public class WebViewHelper {
                 toolbarInterface.onPageFinished(url);
                 progressBar.setVisibility(View.GONE);
                 if (isDebug) {
-                    webDevTool.putRecorder(new WebviewRecorderModel(WebDevTool.KEY_PAGRFINISH, url));
+                    webDevTool.putRecorder(new WebDevTool.RecorderModel(WebDevTool.KEY_PAGRFINISH, url));
                     // 注入js 获取html源文件
                     webView.loadUrl("javascript:window.java_obj.showSource(document.getElementsByTagName('html')[0].innerHTML);");
                 }
@@ -740,7 +739,7 @@ public class WebViewHelper {
     private void goBack() {
         webView.goBack();
         if (isDebug) {
-            webDevTool.putRecorder(new WebviewRecorderModel(WebDevTool.KEY_GOBACK, "回退"));
+            webDevTool.putRecorder(new WebDevTool.RecorderModel(WebDevTool.KEY_GOBACK, "回退"));
         }
     }
 

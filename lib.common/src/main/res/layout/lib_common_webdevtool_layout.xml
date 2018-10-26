@@ -23,7 +23,8 @@
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
             android:text="日志"
-            android:textColor="@drawable/lib_common_devtool_txt_selector" />
+            android:textColor="@drawable/lib_common_devtool_txt_selector"
+            android:textSize="12dp" />
 
         <TextView
             android:id="@+id/tvSources"
@@ -34,7 +35,8 @@
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
             android:text="资源记录"
-            android:textColor="@drawable/lib_common_devtool_txt_selector" />
+            android:textColor="@drawable/lib_common_devtool_txt_selector"
+            android:textSize="12dp" />
 
         <TextView
             android:id="@+id/tvInfo"
@@ -45,7 +47,8 @@
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
             android:text="当前信息"
-            android:textColor="@drawable/lib_common_devtool_txt_selector" />
+            android:textColor="@drawable/lib_common_devtool_txt_selector"
+            android:textSize="12dp" />
 
         <TextView
             android:id="@+id/tvShortcuts"
@@ -56,7 +59,8 @@
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
             android:text="快捷操作"
-            android:textColor="@drawable/lib_common_devtool_txt_selector" />
+            android:textColor="@drawable/lib_common_devtool_txt_selector"
+            android:textSize="12dp" />
 
         <TextView
             android:id="@+id/tvHtml"
@@ -67,7 +71,8 @@
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
             android:text="html源码"
-            android:textColor="@drawable/lib_common_devtool_txt_selector" />
+            android:textColor="@drawable/lib_common_devtool_txt_selector"
+            android:textSize="12dp" />
     </LinearLayout>
 
     <View
@@ -93,13 +98,15 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="清除当前页面记录" />
+            android:text="清除当前页面记录"
+            android:textSize="14sp" />
 
         <Button
             android:id="@+id/btnExit"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="退出" />
+            android:text="退出"
+            android:textSize="14sp" />
     </LinearLayout>
 </LinearLayout>

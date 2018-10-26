@@ -12,7 +12,10 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.util.ArrayMap;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatAutoCompleteTextView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,7 +23,6 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
-import android.util.ArrayMap;
 import android.util.SparseBooleanArray;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -50,6 +52,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -57,7 +61,7 @@ import java.util.Set;
  * JiangyeLin on 2018/7/13
  * webview调试工具界面
  */
-public class WebDevToolDialogFragment extends Fragment implements View.OnClickListener {
+public class WebDebugFragment extends Fragment implements View.OnClickListener {
     private View rootView;
     private TextView tvLog;
     private TextView tvInfo;
@@ -70,8 +74,8 @@ public class WebDevToolDialogFragment extends Fragment implements View.OnClickLi
     private Button btnClearData;//清除历史数据
     WebViewHelper webViewHelper;
 
-    public static WebDevToolDialogFragment newInstance(WebDevTool webDevToolRecorder, WebViewHelper webViewHelper) {
-        WebDevToolDialogFragment fragment = new WebDevToolDialogFragment();
+    public static WebDebugFragment newInstance(WebDevTool webDevToolRecorder, WebViewHelper webViewHelper) {
+        WebDebugFragment fragment = new WebDebugFragment();
         fragment.webViewHelper = webViewHelper;
         fragment.recorder = webDevToolRecorder;
         return fragment;
@@ -81,7 +85,7 @@ public class WebDevToolDialogFragment extends Fragment implements View.OnClickLi
     //显示 调试工具界面
     public void showDevTools() {
         FragmentActivity activity = (FragmentActivity) webViewHelper.getView().getContext();
-        setDevToolCallBack(new WebDevToolDialogFragment.DevToolCallBack() {
+        setDevToolCallBack(new WebDebugFragment.DevToolCallBack() {
 
             @Override
             public void clearCacheOnClick() {
@@ -157,8 +161,41 @@ public class WebDevToolDialogFragment extends Fragment implements View.OnClickLi
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = View.inflate(getContext(), R.layout.lib_common_webdevtool_layout, null);
-        initViews();
+
+        //兼容全屏状态
+        try {
+            if ((getActivity().getWindow().getDecorView().getSystemUiVisibility() & View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN) == View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN) {
+                int resourceId = getActivity().getResources().getIdentifier("status_bar_height", "dimen", "android");
+                if (resourceId > 0) {
+                    int height = getActivity().getResources().getDimensionPixelSize(resourceId);
+                    rootView.setPadding(0, height, 0, 0);
+                }
+            }
+        } catch (Exception ignored) {
+        }
         return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        initViews();
+    }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if (hidden) {
+            return;
+        }
+        if (tvLog.isSelected()) {
+            //fragment重新可见,刷新一下log列表
+            initLogLayout();
+        } else if (tvInfo.isSelected()) {
+            initInfoLayout();
+        } else if (tvSources.isSelected()) {
+            initSourcesLayout();
+        }
     }
 
     private void initViews() {
@@ -304,12 +341,19 @@ public class WebDevToolDialogFragment extends Fragment implements View.OnClickLi
         if (!recorder.isDetailCookie()) {
             //简单
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(300, ViewGroup.LayoutParams.WRAP_CONTENT);
-            if (TextUtils.isEmpty(recorder.getSimpleCookies())) {
+            if (TextUtils.isEmpty(recorder.getX5Cookies())) {
                 return;
             }
-            String[] cookies = recorder.getSimpleCookies().split(";");
-            for (String cookie : cookies) {
 
+            String[] x5Cookies = recorder.getX5Cookies().split(";");
+
+            TextView tvX5Cookie = new TextView(getContext());
+            tvX5Cookie.setPadding(0, 8, 0, 8);
+            tvX5Cookie.setText("以下是x5内核的cookie");
+            tvX5Cookie.setTextColor(ContextCompat.getColor(getContext(), R.color.lib_common_devtool_indigo));
+            llCookies.addView(tvX5Cookie);
+
+            for (String cookie : x5Cookies) {
                 String[] keyValue = cookie.split("=");
 
                 if (keyValue.length == 2) {
@@ -334,6 +378,42 @@ public class WebDevToolDialogFragment extends Fragment implements View.OnClickLi
                     llCookies.addView(linearLayout);
                 }
             }
+
+            //添加systemCookies
+            if (!TextUtils.isEmpty(recorder.getSystemCookies())) {
+                String[] systemCookies = recorder.getSystemCookies().split(";");
+                TextView tvSystemCookie = new TextView(getContext());
+                tvSystemCookie.setPadding(0, 8, 0, 8);
+                tvSystemCookie.setText("以下是系统内核的cookie");
+                tvSystemCookie.setTextColor(ContextCompat.getColor(getContext(), R.color.lib_common_devtool_indigo));
+                llCookies.addView(tvSystemCookie);
+
+                for (String cookie : systemCookies) {
+                    String[] keyValue = cookie.split("=");
+                    if (keyValue.length == 2) {
+                        LinearLayout linearLayout = new LinearLayout(getContext());
+
+                        TextView etKey = new TextView(getContext());
+                        etKey.setGravity(Gravity.LEFT);
+                        TextView etValue = new TextView(getContext());
+
+                        etKey.setText(keyValue[0]);
+                        etValue.setText(keyValue[1]);
+
+                        etKey.setTextIsSelectable(true);
+                        etValue.setTextIsSelectable(true);
+
+                        etValue.setPadding(60, 0, 0, 0);
+
+                        etKey.setLayoutParams(params);
+                        linearLayout.addView(etKey);
+                        linearLayout.addView(etValue);
+
+                        llCookies.addView(linearLayout);
+                    }
+                }
+            }
+
         } else if (recorder.getCookieSet() != null) {
             //详细
             for (String str : recorder.getCookieSet()) {
@@ -454,10 +534,56 @@ public class WebDevToolDialogFragment extends Fragment implements View.OnClickLi
         }
     }
 
+
+    /**
+     * log筛选
+     */
+    private LinkedHashMap<String, String> filterMap = new LinkedHashMap<>();
+    private LinkedHashMap<String, Boolean> checkedItems = new LinkedHashMap<>();
+
+    private List<WebDevTool.RecorderModel> handlerLogFilter() {
+        List<WebDevTool.RecorderModel> list = new ArrayList<>(recorder.getRecorderModelList());
+
+        Iterator<WebDevTool.RecorderModel> iterator = list.iterator();
+        while (iterator.hasNext()) {
+            WebDevTool.RecorderModel model = iterator.next();
+            if (model.key.equals(WebDevTool.KEY_OVERRIDE_URL_LOADING) && !checkedItems.get("ShouldOverrideUrlLoading")) {
+                iterator.remove();
+            } else if (model.key.equals(WebDevTool.KEY_LOADURL) && !checkedItems.get("LoadUrl")) {
+                iterator.remove();
+            } else if (model.key.equals(WebDevTool.KEY_RELOAD) && !checkedItems.get("Reload")) {
+                iterator.remove();
+            } else if (model.key.equals(WebDevTool.KEY_PAGESTART) && !checkedItems.get("onPageStarted")) {
+                iterator.remove();
+            } else if (model.key.equals(WebDevTool.KEY_PAGRFINISH) && !checkedItems.get("onPageFinished")) {
+                iterator.remove();
+            } else if (!checkedItems.get("生命周期事件")) {
+                if (model.key.equals(WebDevTool.kEY_PAUSE) || model.key.equals(WebDevTool.KEY_RESUME) || model.key.equals(WebDevTool.KEY_GOBACK)) {
+                    iterator.remove();
+                }
+            }
+        }
+        return list;
+    }
+
     /**
      * 日志视图
      */
     private void initLogLayout() {
+        filterMap.put("ShouldOverrideUrlLoading", WebDevTool.KEY_OVERRIDE_URL_LOADING);
+        filterMap.put("LoadUrl", WebDevTool.KEY_LOADURL);
+        filterMap.put("Reload", WebDevTool.KEY_RELOAD);
+        filterMap.put("onPageStarted", WebDevTool.KEY_PAGESTART);
+        filterMap.put("onPageFinished", WebDevTool.KEY_PAGRFINISH);
+        filterMap.put("生命周期事件", WebDevTool.KEY_GOBACK);
+
+        checkedItems.put("ShouldOverrideUrlLoading", true);
+        checkedItems.put("LoadUrl", true);
+        checkedItems.put("Reload", true);
+        checkedItems.put("onPageStarted", true);
+        checkedItems.put("onPageFinished", true);
+        checkedItems.put("生命周期事件", true);
+
         frameLayout.removeAllViews();
         View view = View.inflate(getContext(), R.layout.lib_common_webdevtool_log, null);
         frameLayout.addView(view);
@@ -466,13 +592,18 @@ public class WebDevToolDialogFragment extends Fragment implements View.OnClickLi
         TextView tvConsole = view.findViewById(R.id.tvConsole);
         TextView tvError = view.findViewById(R.id.tvError);
 
+        //筛选日志
+        View imgFilter = view.findViewById(R.id.imgFilter);
+
         tvJump.setSelected(true);
 
         RecyclerView recyclerView = view.findViewById(R.id.recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
         recyclerView.setAdapter(new WebDevToolAdapter(recorder.getRecorderModelList()));
 
         tvJump.setOnClickListener(v -> {
+            imgFilter.setVisibility(View.VISIBLE);
             tvJump.setSelected(true);
 
             tvConsole.setSelected(false);
@@ -485,6 +616,7 @@ public class WebDevToolDialogFragment extends Fragment implements View.OnClickLi
             tvConsole.setSelected(true);
             tvError.setSelected(false);
             recyclerView.setAdapter(new WebDevToolAdapter(recorder.getConsoleLogList()));
+            imgFilter.setVisibility(View.GONE);
         });
         tvError.setOnClickListener(v -> {
             tvJump.setSelected(false);
@@ -492,6 +624,38 @@ public class WebDevToolDialogFragment extends Fragment implements View.OnClickLi
             tvError.setSelected(true);
 
             recyclerView.setAdapter(new WebDevToolAdapter(recorder.getErrorList()));
+            imgFilter.setVisibility(View.GONE);
+        });
+        imgFilter.setOnClickListener(v -> {
+            //生成dialog展示数据
+            List<String> itemList = new ArrayList<>();
+            List<Boolean> checkList = new ArrayList<>();
+
+            //dialog要求的数据格式
+            boolean[] booleans = new boolean[filterMap.size()];
+            String[] items = new String[filterMap.size()];
+
+            itemList.clear();
+            checkList.clear();
+
+            for (String item : filterMap.keySet()) {
+                itemList.add(item);
+                checkList.add(checkedItems.get(item));
+            }
+
+            for (int i = 0; i < checkedItems.size(); i++) {
+                items[i] = itemList.get(i);
+                booleans[i] = checkList.get(i);
+            }
+
+            new AlertDialog.Builder(getContext())
+                    .setTitle("筛选-勾选您要展示的条目")
+                    .setMultiChoiceItems(items, booleans, (dialog, which, isChecked) -> {
+                        checkedItems.put(items[which], isChecked);
+                        recyclerView.setAdapter(new WebDevToolAdapter(handlerLogFilter()));
+                    })
+                    .create()
+                    .show();
         });
     }
 

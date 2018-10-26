@@ -25,9 +25,9 @@ public class WebDevTool {
     public static String KEY_RESUME = "Webview";
     public static String KEY_CONSOLE = "Console";
 
-    private List<WebviewRecorderModel> recorderModelList;
-    private List<WebviewRecorderModel> consoleLogList;
-    private List<WebviewRecorderModel> errorList;
+    private List<RecorderModel> recorderModelList;
+    private List<RecorderModel> consoleLogList;
+    private List<RecorderModel> errorList;
 
     private String UA;
 
@@ -36,13 +36,15 @@ public class WebDevTool {
      * 可能会导致某些问题，所以默认只取cookie manager中的参数
      */
     private boolean isDetailCookie = false;
-    private String simpleCookies;
-    private Set<String> detailCookiesSet;
+
+    private String systemCookies; //系统cookie
+    private String x5Cookies;   //x5cookie
+    private Set<String> detailCookiesSet;   //通过header取的服务端set-cookie字段里的cookie
 
     /**
      * 自定义的cookie
      */
-    private List<WebviewRecorderModel> customCookies;
+    private List<RecorderModel> customCookies;
 
     /**
      * 记录加载的资源
@@ -51,36 +53,36 @@ public class WebDevTool {
      */
     private static ArrayMap<String, List<String>> sourcesMap;
 
-    public List<WebviewRecorderModel> getRecorderModelList() {
+    public List<RecorderModel> getRecorderModelList() {
         return recorderModelList;
     }
 
-    public void putRecorder(WebviewRecorderModel webviewRecorderModel) {
+    public void putRecorder(RecorderModel webviewRecorderModel) {
         if (recorderModelList == null) {
             recorderModelList = new ArrayList<>();
         }
         recorderModelList.add(webviewRecorderModel);
     }
 
-    public List<WebviewRecorderModel> getConsoleLogList() {
+    public List<RecorderModel> getConsoleLogList() {
         return consoleLogList;
     }
 
-    public void putConsoleLog(WebviewRecorderModel webviewRecorderModel) {
+    public void putConsoleLog(RecorderModel webviewRecorderModel) {
         if (consoleLogList == null) {
             consoleLogList = new ArrayList<>();
         }
         consoleLogList.add(webviewRecorderModel);
     }
 
-    public void putErrorLog(WebviewRecorderModel webviewRecorderModel) {
+    public void putErrorLog(RecorderModel webviewRecorderModel) {
         if (errorList == null) {
             errorList = new ArrayList<>();
         }
         errorList.add(webviewRecorderModel);
     }
 
-    public List<WebviewRecorderModel> getErrorList() {
+    public List<RecorderModel> getErrorList() {
         return errorList;
     }
 
@@ -112,10 +114,10 @@ public class WebDevTool {
         if (customCookies == null) {
             customCookies = new ArrayList<>();
         }
-        customCookies.add(new WebviewRecorderModel(key, cookie));
+        customCookies.add(new RecorderModel(key, cookie));
     }
 
-    public List<WebviewRecorderModel> getCustomCookies() {
+    public List<RecorderModel> getCustomCookies() {
         return customCookies;
     }
 
@@ -127,12 +129,20 @@ public class WebDevTool {
         isDetailCookie = detailCookie;
     }
 
-    public String getSimpleCookies() {
-        return simpleCookies;
+    public String getX5Cookies() {
+        return x5Cookies;
     }
 
-    public void setSimpleCookies(String simpleCookies) {
-        this.simpleCookies = simpleCookies;
+    public void setX5Cookies(String x5Cookies) {
+        this.x5Cookies = x5Cookies;
+    }
+
+    public String getSystemCookies() {
+        return systemCookies;
+    }
+
+    public void setSystemCookies(String systemCookies) {
+        this.systemCookies = systemCookies;
     }
 
     public Set<String> getCookieSet() {
@@ -148,7 +158,7 @@ public class WebDevTool {
 
     public void showDebugPage() {
         if (null == webDevToolDialogFragment) {
-            webDevToolDialogFragment = WebDevToolDialogFragment.newInstance(this, webViewHelper);
+            webDevToolDialogFragment = WebDebugFragment.newInstance(this, webViewHelper);
         }
         webDevToolDialogFragment.showDevTools();
     }
@@ -158,6 +168,20 @@ public class WebDevTool {
         this.webViewHelper = webViewHelper;
     }
 
-    WebDevToolDialogFragment webDevToolDialogFragment;
+    WebDebugFragment webDevToolDialogFragment;
     WebViewHelper webViewHelper;
+
+
+    /**
+     * 调试工具model
+     */
+    public static class RecorderModel {
+        public String key;
+        public String desc;
+
+        public RecorderModel(String key, String desc) {
+            this.key = key;
+            this.desc = desc;
+        }
+    }
 }

@@ -86,7 +86,8 @@
             android:layout_height="wrap_content"
             android:hint="默认只显示key-value，如果选中switch，下次加载时会显示header中的set-cookie参数(如果有的话)，包含path、expires等字段"
             android:paddingTop="4dp"
-            android:paddingBottom="8dp" />
+            android:paddingBottom="8dp"
+            android:textColorHint="@color/lib_common_devtool_txt_secondary" />
 
         <LinearLayout
             android:id="@+id/llCookies"

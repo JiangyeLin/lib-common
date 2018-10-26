@@ -15,9 +15,9 @@ import java.util.List;
  * JiangyeLin on 2018/7/16
  */
 public class WebDevToolAdapter extends RecyclerView.Adapter {
-    private List<WebviewRecorderModel> list;
+    private List<WebDevTool.RecorderModel> list;
 
-    WebDevToolAdapter(List<WebviewRecorderModel> list) {
+    WebDevToolAdapter(List<WebDevTool.RecorderModel> list) {
         this.list = list;
     }
 
@@ -30,7 +30,7 @@ public class WebDevToolAdapter extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        WebviewRecorderModel model = list.get(position);
+        WebDevTool.RecorderModel model = list.get(position);
         ((ViewHolder) holder).tvKey.setText(model.key + ": ");
         ((ViewHolder) holder).tvContent.setText(model.desc);
     }
