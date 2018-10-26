@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.OnLifecycleEvent;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
@@ -549,14 +550,22 @@ public class WebViewHelper {
 
     private boolean handleHttpLink(String url) {
         if (url.toLowerCase().startsWith("http")) {
-            String lastUrl = webView.getUrl();
-            if (url.equals(lastUrl)) {
-                reload();
+            if (url.contains("openLinkBySystemBrowser=true")) {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(url));
+                if (intent.resolveActivity(activity.getPackageManager()) != null) {
+                    activity.startActivity(intent);
+                }
             } else {
-                loadUrl(url);
-                handlePossibleBugIfLinkHasHash(lastUrl, url);
+                String lastUrl = webView.getUrl();
+                if (url.equals(lastUrl)) {
+                    reload();
+                } else {
+                    loadUrl(url);
+                    handlePossibleBugIfLinkHasHash(lastUrl, url);
+                }
+                handleExtraParamsInHttpUrl(url);
             }
-            handleExtraParamsInHttpUrl(url);
             return true;
         }
         return false;

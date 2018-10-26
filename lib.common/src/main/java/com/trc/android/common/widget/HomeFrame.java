@@ -66,8 +66,9 @@ public class HomeFrame extends FrameLayout {
             }
 
             if (null == fragment) {
-                fragment = this.pageAdapter.getFragment(pageIndex);
-                fragmentTransaction.add(getId(), fragment, fragment.getClass().getName() + pageIndex);
+                fragment = pageAdapter.getFragment(pageIndex);
+                if (!fragment.isAdded())
+                    fragmentTransaction.add(getId(), fragment, fragment.getClass().getName() + pageIndex);
                 fragments[pageIndex] = fragment;
             } else {
                 fragmentTransaction.show(fragment);
