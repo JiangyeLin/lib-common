@@ -1,5 +1,6 @@
 package router.tairan.com.androidcommonplatform;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -29,7 +30,7 @@ public class HomeFrameTestActivity extends FragmentActivity {
         homeFrame = findViewById(R.id.homeFrame);
         homeFrame.setHostActivity(this)
                 .setPageNumber(4)
-                .postInit(2,3)//预加载Page4
+//                .postInit(2,3)//预加载Page4
                 .setPageAdapter(title -> PageIndexFragment.newInstance(TITLES[title]));
 
 
@@ -48,7 +49,7 @@ public class HomeFrameTestActivity extends FragmentActivity {
     @Override
     public void onTrimMemory(int level) {
         super.onTrimMemory(level);
-        homeFrame.tripMemory();
+        homeFrame.trimMemory();
     }
 
     public static class PageIndexFragment extends Fragment {
@@ -61,6 +62,13 @@ public class HomeFrameTestActivity extends FragmentActivity {
             textView.setBackgroundColor(color);
             textView.setTextSize(150);
             textView.setGravity(Gravity.CENTER);
+            textView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    HomeFrameTestActivity activity = (HomeFrameTestActivity) v.getContext();
+                    activity.onTrimMemory(Activity.TRIM_MEMORY_RUNNING_LOW);
+                }
+            });
             return textView;
         }
 

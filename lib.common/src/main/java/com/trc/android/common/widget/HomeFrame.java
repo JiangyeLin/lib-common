@@ -42,6 +42,11 @@ public class HomeFrame extends FrameLayout {
         return this;
     }
 
+    /**
+     *
+     * @param pageNumber Tab页面的数量
+     * @return
+     */
     public HomeFrame setPageNumber(int pageNumber) {
         this.fragments = new Fragment[pageNumber];
         return this;
@@ -134,16 +139,16 @@ public class HomeFrame extends FrameLayout {
         fragmentTransaction.commit();
     }
 
-    public void tripMemory() {
+    public void trimMemory() {
         FragmentTransaction fragmentTransaction = hostActivity.getSupportFragmentManager().beginTransaction();
         for (int i = 0; i < fragments.length; i++) {
             Fragment fragment = fragments[i];
-            if (fragment != currentFragment) {
+            if (fragment != currentFragment && fragment != null) {
                 fragmentTransaction.remove(fragment);
                 fragments[i] = null;
             }
         }
-        fragmentTransaction.commit();
+        fragmentTransaction.commitAllowingStateLoss();
     }
 
     public interface PageAdapter {

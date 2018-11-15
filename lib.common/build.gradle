@@ -11,7 +11,7 @@ android {
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
-
+        consumerProguardFiles 'proguard-rules.pro'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         resourcePrefix('lib_common_')
         ndk { abiFilters "armeabi" }
@@ -67,7 +67,7 @@ uploadArchives {
             pom.project {
                 groupId 'com.trc.android'
                 artifactId 'lib-common'
-                version '1.1.0.4'
+                version '1.1.0.7'
                 packaging 'aar'
             }
         }
