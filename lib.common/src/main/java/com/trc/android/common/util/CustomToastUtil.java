@@ -41,7 +41,7 @@ public class CustomToastUtil {
      */
     public static int bgColor;
     public static int textColor;
-    public static int height = 30;
+    public static int height = 40;
 
     /**
      * 设置高度
@@ -177,7 +177,7 @@ public class CustomToastUtil {
     private ToastText initText(Context context) {
         ToastText textView = new ToastText(context);
         textView.setTextSize(14);
-        textView.setPadding(dip2px(10), dip2px(5), dip2px(10), dip2px(5));
+        textView.setPadding(dip2px(20), dip2px(10), dip2px(20), dip2px(10));
         return textView;
     }
 
@@ -205,7 +205,7 @@ public class CustomToastUtil {
         if (bgColor != 0) {
             mToast.setPaintColor(bgColor);
         }
-        mToast.setHeight(height);
+        mToast.setHeight(dip2px(height));
     }
 
     private boolean isShowToast() {
@@ -239,7 +239,7 @@ public class CustomToastUtil {
     }
 
     @SuppressLint("AppCompatCustomView")
-    static class ToastText extends TextView {
+    class ToastText extends TextView {
         private static final int ANIMATION_TIME = 500;
         private boolean isShow;
         private Paint mPaint;
@@ -290,7 +290,7 @@ public class CustomToastUtil {
             //在回调父类方法之前，对TextView来说是绘制文本内容之前
             //绘制里层矩形 参数：左、上、右、下、画笔
             //除了绘制矩形，用的多的还可以绘制线，圆，扇形，Path等
-            canvas.drawRoundRect(rectF, 40, 40, mPaint);
+            canvas.drawRoundRect(rectF, dip2px(50), dip2px(50), mPaint);
             super.onDraw(canvas);
         }
 
