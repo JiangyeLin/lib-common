@@ -23,7 +23,6 @@ import com.trc.common.R;
 public class CustomToastUtil {
 
     private Activity mActivity;
-    private RelativeLayout mToastLayout;
     private ToastLayout mToast;
     private ViewGroup mView;
     private String text;
@@ -117,7 +116,9 @@ public class CustomToastUtil {
      * @return
      */
     public static CustomToastUtil makeText(Activity mActivity, String text, long times) {
-        mToastInstance = new CustomToastUtil(mActivity, text, times);
+        if (mToastInstance == null) {
+            mToastInstance = new CustomToastUtil(mActivity, text, times);
+        }
         return mToastInstance;
     }
 
@@ -130,7 +131,9 @@ public class CustomToastUtil {
      * @return
      */
     public static CustomToastUtil makeText(ViewGroup mView, String text, long times) {
-        mToastInstance = new CustomToastUtil(mView, text, times);
+        if (mToastInstance == null) {
+            mToastInstance = new CustomToastUtil(mView, text, times);
+        }
         return mToastInstance;
     }
 
@@ -140,27 +143,24 @@ public class CustomToastUtil {
     public void show() {
         if (mActivity != null) {
             initLayoutParams(mActivity);
-            mToastLayout = mActivity.findViewById(R.id.rl_toast);
-            //判断是否已经添加进母VIEW里，没有则添加进去
-            if (mToastLayout == null) {
+            if (mToast != null && mToast.isShow()) {
+                return;
+            } else {
                 mToast = new ToastLayout(mActivity);
                 initToast(mToast);
                 mActivity.addContentView(mToast, mViewGroupParams);
-            } else {
-                //如果有，则直接取出
-                mToast = (ToastLayout) mToastLayout.getParent();
             }
             mToast.setContent(text);
             mToast.showToast(times);
+            return;
         } else if (mView != null) {
             initLayoutParams(mView.getContext());
-            mToastLayout = mView.findViewById(R.id.rl_toast);
-            if (mToastLayout == null) {
+            if (mToast != null && mToast.isShow()) {
+                return;
+            } else {
                 mToast = new ToastLayout(mView.getContext());
                 initToast(mToast);
                 mView.addView(mToast, mViewGroupParams);
-            } else {
-                mToast = (ToastLayout) mToastLayout.getParent();
             }
             mToast.setContent(text);
             mToast.showToast(times);
@@ -217,7 +217,6 @@ public class CustomToastUtil {
         private TextView mContent;
         private View view;
         private boolean isShow;
-        private RelativeLayout mWrapper;
         private int height;
 
         public boolean isShow() {
@@ -237,7 +236,6 @@ public class CustomToastUtil {
             view = LayoutInflater.from(getContext()).inflate(R.layout.lib_common_toast, null);
             addView(view);
             mContent = view.findViewById(R.id.tv_content);
-            mWrapper = view.findViewById(R.id.rl_toast);
             height = 60;
         }
 
@@ -246,7 +244,7 @@ public class CustomToastUtil {
         }
 
         public void setBgColor(int color) {
-            mWrapper.setBackgroundColor(color);
+            mContent.setBackgroundColor(color);
         }
 
         public void setHeight(int height) {
