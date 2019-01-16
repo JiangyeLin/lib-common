@@ -1,20 +1,21 @@
 package com.trc.android.common.util;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
 import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import com.trc.common.R;
 
 /**
  * @author HuangMing on 2019/1/15.
@@ -23,7 +24,7 @@ import com.trc.common.R;
 public class CustomToastUtil {
 
     private Activity mActivity;
-    private ToastLayout mToast;
+    private ToastText mToast;
     private ViewGroup mView;
     private String text;
     private long times;
@@ -56,7 +57,7 @@ public class CustomToastUtil {
      * @param bgColor
      */
     public static void setBgColor(int bgColor) {
-        bgColor = bgColor;
+        CustomToastUtil.bgColor = bgColor;
     }
 
     /**
@@ -65,7 +66,7 @@ public class CustomToastUtil {
      * @param textColor
      */
     public static void setTextColor(int textColor) {
-        textColor = textColor;
+        CustomToastUtil.textColor = textColor;
     }
 
     /**
@@ -146,11 +147,11 @@ public class CustomToastUtil {
             if (mToast != null && mToast.isShow()) {
                 return;
             } else {
-                mToast = new ToastLayout(mActivity);
+                mToast = initText(mActivity);
                 initToast(mToast);
                 mActivity.addContentView(mToast, mViewGroupParams);
             }
-            mToast.setContent(text);
+            mToast.setText(text);
             mToast.showToast(times);
             return;
         } else if (mView != null) {
@@ -158,13 +159,20 @@ public class CustomToastUtil {
             if (mToast != null && mToast.isShow()) {
                 return;
             } else {
-                mToast = new ToastLayout(mView.getContext());
+                mToast = initText(mView.getContext());
                 initToast(mToast);
                 mView.addView(mToast, mViewGroupParams);
             }
-            mToast.setContent(text);
+            mToast.setText(text);
             mToast.showToast(times);
         }
+    }
+
+    private ToastText initText(Context context){
+        ToastText textView = new ToastText(context);
+        textView.setTextSize(14);
+        textView.setPadding(ToastText.dip2px(context,10),ToastText.dip2px(context,5), ToastText.dip2px(context,10), ToastText.dip2px(context,5));
+        return textView;
     }
 
     /**
@@ -173,7 +181,7 @@ public class CustomToastUtil {
      * @param context
      */
     private void initLayoutParams(Context context) {
-        mViewGroupParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, ToastLayout.dip2px(context, height));
+        mViewGroupParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, ToastText.dip2px(context, height));
         mViewGroupParams.gravity = Gravity.BOTTOM | Gravity.CENTER;
         mViewGroupParams.bottomMargin = 200;
     }
@@ -183,12 +191,12 @@ public class CustomToastUtil {
      *
      * @param mToast
      */
-    private void initToast(ToastLayout mToast) {
+    private void initToast(ToastText mToast) {
         if (textColor != 0) {
             mToast.setTextColor(textColor);
         }
         if (bgColor != 0) {
-            mToast.setBgColor(bgColor);
+            mToast.setPaintColor(bgColor);
         }
         mToast.setHeight(height);
     }
@@ -212,50 +220,62 @@ public class CustomToastUtil {
         }
     }
 
-    static class ToastLayout extends RelativeLayout {
+    @SuppressLint("AppCompatCustomView")
+    static class ToastText extends TextView {
         private static final int ANIMATION_TIME = 200;
-        private TextView mContent;
-        private View view;
         private boolean isShow;
-        private int height;
+        private int height = 60;
+        private FrameLayout.LayoutParams layoutParams;
+        private Paint mPaint;
+        private int mPaintColor = Color.parseColor("#e0e0e0");
 
         public boolean isShow() {
             return isShow;
         }
 
-        public ToastLayout(Context context) {
+        public ToastText(Context context) {
             this(context, null);
         }
 
-        public ToastLayout(Context context, AttributeSet attrs) {
+        public ToastText(Context context, AttributeSet attrs) {
             this(context, attrs, 0);
         }
 
-        public ToastLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+        public ToastText(Context context, AttributeSet attrs, int defStyleAttr) {
             super(context, attrs, defStyleAttr);
-            view = LayoutInflater.from(getContext()).inflate(R.layout.lib_common_toast, null);
-            addView(view);
-            mContent = view.findViewById(R.id.tv_content);
-            height = 60;
+            init();
         }
 
-        public void setTextColor(int color) {
-            mContent.setTextColor(color);
+        public void setPaintColor(int color) {
+            mPaintColor = color;
+            mPaint.setColor(mPaintColor);
         }
 
-        public void setBgColor(int color) {
-            mContent.setBackgroundColor(color);
+        /**
+         * 初始化画笔
+         */
+        private void init() {
+            //实例化画笔
+            mPaint = new Paint();
+            //设置画笔颜色
+            mPaint.setColor(mPaintColor);
+            //设置它的填充方法，用的多的是FILL 和 STORKE
+            mPaint.setStyle(Paint.Style.FILL);
         }
 
-        public void setHeight(int height) {
-            this.height = height;
-        }
-
-
-        public void setContent(String content) {
-            if (mContent != null) {
-                mContent.setText(content);
-            }
+        /**
+         * 重写onDraw方法 可以在绘制文字前后进行一些自己的操作
+         * super.onDraw(canvas);调用父类方法绘制文字
+         * 如果绘制矩形的代码写在它的后边，文字就会被覆盖
+         */
+        @Override
+        protected void onDraw(Canvas canvas) {
+            //在回调父类方法之前，对TextView来说是绘制文本内容之前
+            //绘制里层矩形 参数：左、上、右、下、画笔
+            //除了绘制矩形，用的多的还可以绘制线，圆，扇形，Path等
+            RectF rectF = new RectF(0, 0, getMeasuredWidth(), getMeasuredHeight());
+            canvas.drawRoundRect(rectF, 40, 40, mPaint);
+            super.onDraw(canvas);
         }
 
         public void showToast(long time) {
@@ -272,13 +292,13 @@ public class CustomToastUtil {
                 @Override
                 public void onAnimationStart(Animation animation) {
                     isShow = true;
-                    ToastLayout.this.setVisibility(View.VISIBLE);
+                    ToastText.this.setVisibility(View.VISIBLE);
                 }
 
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     isShow = false;
-                    ToastLayout.this.setVisibility(View.GONE);
+                    ToastText.this.setVisibility(View.GONE);
                 }
 
                 @Override

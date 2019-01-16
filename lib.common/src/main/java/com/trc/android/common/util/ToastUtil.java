@@ -23,7 +23,6 @@ public class ToastUtil {
         } else {
             new Handler(Looper.getMainLooper()).post(() -> toast(message));
         }
-
     }
 
     private static void toast(String message) {
