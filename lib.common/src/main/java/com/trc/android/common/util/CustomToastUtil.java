@@ -11,9 +11,9 @@ import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
-import android.view.animation.TranslateAnimation;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -30,6 +30,7 @@ public class CustomToastUtil {
     private long times;
     private static CustomToastUtil mToastInstance;
     private FrameLayout.LayoutParams mViewGroupParams;
+    private Context mContext;
     /**
      * 固定参数
      */
@@ -45,7 +46,7 @@ public class CustomToastUtil {
     /**
      * 设置高度
      *
-     * @param height
+     * @param height 高度
      */
     public static void setHeight(int height) {
         CustomToastUtil.height = height;
@@ -54,7 +55,7 @@ public class CustomToastUtil {
     /**
      * 背景色
      *
-     * @param bgColor
+     * @param bgColor 背景色
      */
     public static void setBgColor(int bgColor) {
         CustomToastUtil.bgColor = bgColor;
@@ -63,7 +64,7 @@ public class CustomToastUtil {
     /**
      * 文字颜色
      *
-     * @param textColor
+     * @param textColor 文字颜色
      */
     public static void setTextColor(int textColor) {
         CustomToastUtil.textColor = textColor;
@@ -85,11 +86,11 @@ public class CustomToastUtil {
     /**
      * 构造函数，上下文为activity
      *
-     * @param mActivity
-     * @param text
-     * @param times
+     * @param mActivity 上下文为activity
+     * @param text      文本内容
+     * @param times     显示时间
      */
-    public CustomToastUtil(Activity mActivity, String text, long times) {
+    private CustomToastUtil(Activity mActivity, String text, long times) {
         this.mActivity = mActivity;
         this.text = text;
         this.times = times;
@@ -98,11 +99,11 @@ public class CustomToastUtil {
     /**
      * 构造函数，上下文为View
      *
-     * @param mView
-     * @param text
-     * @param times
+     * @param mView 上下文为View
+     * @param text  文本内容
+     * @param times 显示时间
      */
-    public CustomToastUtil(ViewGroup mView, String text, long times) {
+    private CustomToastUtil(ViewGroup mView, String text, long times) {
         this.mView = mView;
         this.text = text;
         this.times = times;
@@ -111,10 +112,10 @@ public class CustomToastUtil {
     /**
      * 调用方法，上下文为activity
      *
-     * @param mActivity
-     * @param text
-     * @param times
-     * @return
+     * @param mActivity 上下文为activity
+     * @param text      文本内容
+     * @param times     显示时间
+     * @return CustomToastUtil
      */
     public static CustomToastUtil makeText(Activity mActivity, String text, long times) {
         if (mToastInstance == null) {
@@ -126,10 +127,10 @@ public class CustomToastUtil {
     /**
      * 调用方法，上下文为view
      *
-     * @param mView
-     * @param text
-     * @param times
-     * @return
+     * @param mView 上下文为view
+     * @param text  文本内容
+     * @param times 显示时间
+     * @return CustomToastUtil
      */
     public static CustomToastUtil makeText(ViewGroup mView, String text, long times) {
         if (mToastInstance == null) {
@@ -153,7 +154,6 @@ public class CustomToastUtil {
             }
             mToast.setText(text);
             mToast.showToast(times);
-            return;
         } else if (mView != null) {
             initLayoutParams(mView.getContext());
             if (mToast != null && mToast.isShow()) {
@@ -168,28 +168,35 @@ public class CustomToastUtil {
         }
     }
 
-    private ToastText initText(Context context){
+    /**
+     * 初始化显示文本控件
+     *
+     * @param context 上下文为
+     * @return ToastText 对象
+     */
+    private ToastText initText(Context context) {
         ToastText textView = new ToastText(context);
         textView.setTextSize(14);
-        textView.setPadding(ToastText.dip2px(context,10),ToastText.dip2px(context,5), ToastText.dip2px(context,10), ToastText.dip2px(context,5));
+        textView.setPadding(dip2px(10), dip2px(5), dip2px(10), dip2px(5));
         return textView;
     }
 
     /**
      * 初始化页面布局
      *
-     * @param context
+     * @param context 上下文为
      */
     private void initLayoutParams(Context context) {
-        mViewGroupParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, ToastText.dip2px(context, height));
+        mContext = context;
+        mViewGroupParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, dip2px(height));
         mViewGroupParams.gravity = Gravity.BOTTOM | Gravity.CENTER;
-        mViewGroupParams.bottomMargin = 200;
+        mViewGroupParams.bottomMargin = dip2px(100);
     }
 
     /**
      * 设置各个参数
      *
-     * @param mToast
+     * @param mToast ToastText对象
      */
     private void initToast(ToastText mToast) {
         if (textColor != 0) {
@@ -208,7 +215,7 @@ public class CustomToastUtil {
     /**
      * 是否在展示
      *
-     * @return
+     * @return true/false 显示/不显示
      */
     public static boolean isShow() {
         if (mToastInstance == null) {
@@ -220,13 +227,23 @@ public class CustomToastUtil {
         }
     }
 
+    /**
+     * 将dip或dp值转换为px值，保证尺寸大小不变
+     *
+     * @param dipValue dp值
+     * @return px
+     */
+    private int dip2px(float dipValue) {
+        float density = mContext.getResources().getDisplayMetrics().density;
+        return (int) (dipValue * density + 0.5f);
+    }
+
     @SuppressLint("AppCompatCustomView")
     static class ToastText extends TextView {
-        private static final int ANIMATION_TIME = 200;
+        private static final int ANIMATION_TIME = 500;
         private boolean isShow;
-        private int height = 60;
-        private FrameLayout.LayoutParams layoutParams;
         private Paint mPaint;
+        private RectF rectF;
         private int mPaintColor = Color.parseColor("#e0e0e0");
 
         public boolean isShow() {
@@ -273,15 +290,20 @@ public class CustomToastUtil {
             //在回调父类方法之前，对TextView来说是绘制文本内容之前
             //绘制里层矩形 参数：左、上、右、下、画笔
             //除了绘制矩形，用的多的还可以绘制线，圆，扇形，Path等
-            RectF rectF = new RectF(0, 0, getMeasuredWidth(), getMeasuredHeight());
             canvas.drawRoundRect(rectF, 40, 40, mPaint);
             super.onDraw(canvas);
         }
 
+        @Override
+        protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+            super.onSizeChanged(w, h, oldw, oldh);
+            rectF = new RectF(0, 0, getMeasuredWidth(), getMeasuredHeight());
+        }
+
         public void showToast(long time) {
             AnimationSet animationSet = new AnimationSet(true);
-            TranslateAnimation trans1 = new TranslateAnimation(0, 0, -dip2px(getContext(), height), 0);
-            TranslateAnimation trans2 = new TranslateAnimation(0, 0, 0, -dip2px(getContext(), height));
+            AlphaAnimation trans1 = new AlphaAnimation(0.1f, 1.0f);
+            AlphaAnimation trans2 = new AlphaAnimation(1.0f, 0.1f);
             trans1.setDuration(ANIMATION_TIME);
             trans2.setStartOffset(ANIMATION_TIME + time);
             trans2.setDuration(ANIMATION_TIME);
@@ -299,6 +321,7 @@ public class CustomToastUtil {
                 public void onAnimationEnd(Animation animation) {
                     isShow = false;
                     ToastText.this.setVisibility(View.GONE);
+                    ((ViewGroup)ToastText.this.getParent()).removeView(ToastText.this);
                 }
 
                 @Override
@@ -306,18 +329,6 @@ public class CustomToastUtil {
 
                 }
             });
-        }
-
-        /**
-         * 将dip或dp值转换为px值，保证尺寸大小不变
-         *
-         * @param context
-         * @param dipValue
-         * @return
-         */
-        public static int dip2px(Context context, float dipValue) {
-            float density = context.getResources().getDisplayMetrics().density;
-            return (int) (dipValue * density + 0.5f);
         }
     }
 }
