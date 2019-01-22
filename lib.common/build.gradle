@@ -67,7 +67,7 @@ uploadArchives {
             pom.project {
                 groupId 'com.trc.android'
                 artifactId 'lib-common'
-                version '1.1.0.8'
+                version '1.1.0.9'
                 packaging 'aar'
             }
         }

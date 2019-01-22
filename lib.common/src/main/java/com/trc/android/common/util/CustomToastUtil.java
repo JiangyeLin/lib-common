@@ -23,7 +23,7 @@ import android.widget.TextView;
 
 public class CustomToastUtil {
 
-    private Activity mActivity;
+    private static Activity mActivity;
     private ToastText mToast;
     private ViewGroup mView;
     private String text;
@@ -86,12 +86,12 @@ public class CustomToastUtil {
     /**
      * 构造函数，上下文为activity
      *
-     * @param mActivity 上下文为activity
-     * @param text      文本内容
-     * @param times     显示时间
+     * @param mActivity1 上下文为activity
+     * @param text       文本内容
+     * @param times      显示时间
      */
-    private CustomToastUtil(Activity mActivity, String text, long times) {
-        this.mActivity = mActivity;
+    private CustomToastUtil(Activity mActivity1, String text, long times) {
+        mActivity = mActivity1;
         this.text = text;
         this.times = times;
     }
@@ -112,14 +112,14 @@ public class CustomToastUtil {
     /**
      * 调用方法，上下文为activity
      *
-     * @param mActivity 上下文为activity
-     * @param text      文本内容
-     * @param times     显示时间
+     * @param mActivity1 上下文为activity
+     * @param text       文本内容
+     * @param times      显示时间
      * @return CustomToastUtil
      */
-    public static CustomToastUtil makeText(Activity mActivity, String text, long times) {
-        if (mToastInstance == null) {
-            mToastInstance = new CustomToastUtil(mActivity, text, times);
+    public static CustomToastUtil makeText(Activity mActivity1, String text, long times) {
+        if (mToastInstance == null || mActivity == null || mActivity.hashCode() != mActivity1.hashCode()) {
+            mToastInstance = new CustomToastUtil(mActivity1, text, times);
         }
         return mToastInstance;
     }
@@ -145,15 +145,15 @@ public class CustomToastUtil {
     public void show() {
         if (mActivity != null) {
             initLayoutParams(mActivity);
-            if (mToast != null && mToast.isShow()) {
-                return;
-            } else {
+            if (mToast == null) {
                 mToast = initText(mActivity);
                 initToast(mToast);
-                mActivity.addContentView(mToast, mViewGroupParams);
             }
-            mToast.setText(text);
-            mToast.showToast(times);
+            if (!mToast.isShow()) {
+                mActivity.addContentView(mToast, mViewGroupParams);
+                mToast.setText(text);
+                mToast.showToast(times);
+            }
         } else if (mView != null) {
             initLayoutParams(mView.getContext());
             if (mToast != null && mToast.isShow()) {
@@ -301,34 +301,38 @@ public class CustomToastUtil {
         }
 
         public void showToast(long time) {
-            AnimationSet animationSet = new AnimationSet(true);
-            AlphaAnimation trans1 = new AlphaAnimation(0.1f, 1.0f);
-            AlphaAnimation trans2 = new AlphaAnimation(1.0f, 0.1f);
-            trans1.setDuration(ANIMATION_TIME);
-            trans2.setStartOffset(ANIMATION_TIME + time);
-            trans2.setDuration(ANIMATION_TIME);
-            animationSet.addAnimation(trans1);
-            animationSet.addAnimation(trans2);
-            this.startAnimation(animationSet);
-            animationSet.setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
-                    isShow = true;
-                    ToastText.this.setVisibility(View.VISIBLE);
-                }
+            try {
+                AnimationSet animationSet = new AnimationSet(true);
+                AlphaAnimation trans1 = new AlphaAnimation(0.1f, 1.0f);
+                AlphaAnimation trans2 = new AlphaAnimation(1.0f, 0.1f);
+                trans1.setDuration(ANIMATION_TIME);
+                trans2.setStartOffset(ANIMATION_TIME + time);
+                trans2.setDuration(ANIMATION_TIME);
+                animationSet.addAnimation(trans1);
+                animationSet.addAnimation(trans2);
+                this.startAnimation(animationSet);
+                animationSet.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                        isShow = true;
+                        ToastText.this.setVisibility(View.VISIBLE);
+                    }
 
-                @Override
-                public void onAnimationEnd(Animation animation) {
-                    isShow = false;
-                    ToastText.this.setVisibility(View.GONE);
-                    ((ViewGroup)ToastText.this.getParent()).removeView(ToastText.this);
-                }
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        isShow = false;
+                        ToastText.this.setVisibility(View.GONE);
+                        ((ViewGroup) ToastText.this.getParent()).removeView(ToastText.this);
+                    }
 
-                @Override
-                public void onAnimationRepeat(Animation animation) {
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
 
-                }
-            });
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 }
