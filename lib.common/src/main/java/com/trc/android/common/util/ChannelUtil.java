@@ -11,13 +11,11 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.text.TextUtils;
 
+import com.meituan.android.walle.ChannelInfo;
+import com.meituan.android.walle.ChannelReader;
 import com.trc.android.common.exception.ExceptionManager;
-import com.trc.android.common.util.Contexts;
 
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import java.io.File;
 
 public class ChannelUtil {
 
@@ -70,33 +68,9 @@ public class ChannelUtil {
             //从apk包中获取
             ApplicationInfo appinfo = context.getApplicationInfo();
             String sourceDir = appinfo.sourceDir;
-            //默认放在meta-inf/里， 所以需要再拼接一下
-            String key = "META-INF/TrcChannel";
-            String ret = "";
-            ZipFile zipfile = null;
-            try {
-                zipfile = new ZipFile(sourceDir);
-                Enumeration<?> entries = zipfile.entries();
-                while (entries.hasMoreElements()) {
-                    ZipEntry entry = ((ZipEntry) entries.nextElement());
-                    String entryName = entry.getName();
-                    if (entryName.startsWith(key)) {
-                        ret = entryName;
-                        break;
-                    }
-                }
-            } catch (IOException e) {
-                ExceptionManager.handle(e);
-            } finally {
-                if (zipfile != null) {
-                    try {
-                        zipfile.close();
-                    } catch (IOException e) {
-                        ExceptionManager.handle(e);
-                    }
-                }
-            }
-            return ret.substring(key.length() + 1).trim();
+
+            ChannelInfo channelInfo = ChannelReader.get(new File(sourceDir));
+            return channelInfo.getChannel();
         } catch (Throwable e) {
             ExceptionManager.handle(e);
             return CHANNEL;
