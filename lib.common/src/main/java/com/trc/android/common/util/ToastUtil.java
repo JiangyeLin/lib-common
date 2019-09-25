@@ -2,9 +2,10 @@ package com.trc.android.common.util;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v4.app.NotificationManagerCompat;
 import android.text.TextUtils;
 import android.widget.Toast;
+
+import androidx.core.app.NotificationManagerCompat;
 
 /**
  * @author hm

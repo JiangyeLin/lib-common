@@ -3,7 +3,8 @@ package router.tairan.com.androidcommonplatform;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.trc.android.common.h5.WebViewHelper;
 

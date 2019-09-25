@@ -3,13 +3,14 @@ package com.trc.android.common.h5.devtool;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.support.annotation.DrawableRes;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+
+import androidx.annotation.DrawableRes;
 
 public class FloatingButton {
     private static final int NUM_VALUES1 = 2;

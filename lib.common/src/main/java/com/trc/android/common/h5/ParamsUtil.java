@@ -1,7 +1,8 @@
 package com.trc.android.common.h5;
 
 import android.net.Uri;
-import android.support.annotation.Nullable;
+
+import androidx.annotation.Nullable;
 
 import com.trc.android.common.util.Base64Util;
 

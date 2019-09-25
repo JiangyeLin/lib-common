@@ -3,7 +3,8 @@ package com.trc.android.common.h5;
 
 import android.net.Uri;
 import android.os.Build;
-import android.support.annotation.Nullable;
+
+import androidx.annotation.Nullable;
 
 import com.tencent.smtt.sdk.CookieManager;
 

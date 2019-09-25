@@ -1,6 +1,6 @@
 package com.trc.android.common.util;
 
-import android.support.v4.widget.SwipeRefreshLayout;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.trc.common.R;
 

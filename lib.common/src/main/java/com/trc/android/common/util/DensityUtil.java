@@ -1,7 +1,5 @@
 package com.trc.android.common.util;
 
-import android.content.Context;
-
 public class DensityUtil {
 
     /**

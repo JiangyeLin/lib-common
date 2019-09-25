@@ -1,17 +1,10 @@
 package com.trc.android.common.h5;
 
 import android.annotation.TargetApi;
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleObserver;
-import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
-import android.support.annotation.IdRes;
-import android.support.annotation.LayoutRes;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +14,14 @@ import android.view.Window;
 import android.webkit.JavascriptInterface;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
+
+import androidx.annotation.IdRes;
+import androidx.annotation.LayoutRes;
+import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.tencent.smtt.export.external.interfaces.ConsoleMessage;
 import com.tencent.smtt.export.external.interfaces.SslErrorHandler;

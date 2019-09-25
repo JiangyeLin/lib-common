@@ -1,8 +1,8 @@
 package com.trc.android.common.modulize;
 
 import android.app.Application;
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
+
+import androidx.annotation.IntDef;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="horizontal">
 
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvLeft"
         android:layout_width="100dp"
         android:layout_height="match_parent" />
@@ -15,7 +15,7 @@
         android:layout_marginRight="8dp"
         android:background="#bdbdbd" />
 
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvRight"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

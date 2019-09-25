@@ -1,6 +1,6 @@
 package com.trc.android.common.h5.devtool;
 
-import android.support.v4.util.ArrayMap;
+import androidx.collection.ArrayMap;
 
 import com.trc.android.common.h5.WebViewHelper;
 

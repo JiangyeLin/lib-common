@@ -30,7 +30,7 @@ public class CommonLib {
 
             @Override
             public void onViewInitFinished(boolean x5CoreInitComplete) {
-                System.out.println("x5CoreInitComplete："+x5CoreInitComplete);
+                System.out.println("x5CoreInitComplete：" + x5CoreInitComplete);
             }
         });
     }

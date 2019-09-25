@@ -11,9 +11,10 @@ buildscript {
             name 'google'//可省略
             url "https://maven.aliyun.com/repository/google"
         }
+        google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.4'
+        classpath 'com.android.tools.build:gradle:3.5.0'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -34,6 +35,7 @@ allprojects {
             name '公司Maven私服'
             url "http://121.41.17.205:18081/nexus/content/repositories/android-realeases"
         }
+        google()
     }
 }
 

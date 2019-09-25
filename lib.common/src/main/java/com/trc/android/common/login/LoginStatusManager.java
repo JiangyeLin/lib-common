@@ -6,7 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Process;
-import android.support.annotation.Nullable;
+
+import androidx.annotation.Nullable;
 
 import java.io.Serializable;
 import java.util.LinkedList;

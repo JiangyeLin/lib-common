@@ -4,12 +4,13 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.os.Looper;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTransaction;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
+
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 
 public class HomeFrame extends FrameLayout {
     private PageAdapter pageAdapter;
@@ -43,7 +44,6 @@ public class HomeFrame extends FrameLayout {
     }
 
     /**
-     *
      * @param pageNumber Tab页面的数量
      * @return
      */
